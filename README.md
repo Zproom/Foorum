@@ -12,12 +12,14 @@ Foorum is a simple web forum that enables users to submit posts on discussion bo
 
 ## How to Use
 
-After cloning this repository, complete the following steps:
+To start using the app, complete the following steps:
 
 1. `cd` into the `Foorum` directory.
-2. Run `python3 manage.py makemigrations forum` to make migrations for the forum app.
+2. Run `python3 manage.py makemigrations` to make migrations for the project apps.
 3. Run `python3 manage.py migrate` to apply migrations to your database.
-4. Run `python3 manage.py runserver` to launch the app.
+4. Run `python3 manage.py runserver` to launch the app. You will notice that there are no boards and no other users. Create boards by submitting forms on the All Boards page or...
+5. Create one or more superusers who can create, edit, and delete any of the models in Foorum by running `python3 manage.py createsuperuser`. To use the admin app, go to the URL "http://127.0.0.1:8000/admin/" and sign in with your superuser's credentials. The admin app offers a quick way to populate Foorum with content. You can also create regular users by signing out and clicking the Register link at the top of the page. 
+6. To give regular users the ability to create new boards as an admin, go to the admin app and click "Users". Click on the appropriate user in the list and next to "User permissions" control click "forum|board|Can add board". 
 
 ## Models
 
