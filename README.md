@@ -4,6 +4,21 @@
 
 Foorum is a simple web forum that enables users to submit posts on discussion boards with distinct topics. Signed in users are able to create and edit posts on each board and can like and comment on other users' posts. Users also have the ability to follow other users and can view those users' posts in a separate page. If given permission by an administrator, users may create new discussion boards. The app utilizes Django on the back-end to enable users to create new posts and boards, sort posts, and follow and unfollow other users. On the front-end, JavaScript lets users create new comments and edit and like posts and comments via the app's API. 
 
+## Requirements
+
+- Python 3 (used 3.6.9)
+- pip
+- Django (see *[instructions](https://docs.djangoproject.com/en/3.0/topics/install/)*) 
+
+## How to Use
+
+After cloning this repository, complete the following steps:
+
+1. `cd` into the `Foorum` directory.
+2. Run `python3 manage.py makemigrations forum` to make migrations for the forum app.
+3. Run `python3 manage.py migrate` to apply migrations to your database.
+4. Run `python3 manage.py runserver` to launch the app.
+
 ## Models
 
 Foorum includes the following models:
