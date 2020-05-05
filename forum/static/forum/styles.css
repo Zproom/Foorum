@@ -1,0 +1,260 @@
+@media (min-width: 600px) {
+    .post-div, .create-board-div {
+        display: block;
+        background-color: white;
+        border: 0.5px solid grey;
+        border-radius: 5px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 20px;
+        width: 590px;
+    }
+}
+
+@media (max-width: 599px) {
+    .post-div, .create-board-div {
+        display: block;
+        background-color: white;
+        border: 0.5px solid grey;
+        border-radius: 5px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        padding: 20px;
+        width: 100%;
+    }
+}
+
+body {
+    background-color: rgb(200, 244, 255);
+}
+
+.index-title {
+    text-align: center;
+}
+
+.index-board-list {
+    text-align: center;
+}
+
+.index-board-link:link {
+    display: block;
+    color: black;
+    text-decoration: none;
+}
+
+.index-board-link:visited {
+    display: block;
+    color: black;
+    text-decoration: underline;
+}
+
+.index-board-link:hover {
+    display: block;
+    color: black;
+    text-decoration: underline;
+}
+
+.index-board-link:active {
+    display: block;
+    color: black;
+    text-decoration: underline;
+}
+
+#post-textarea, .edit-post-textarea {
+    display: block;
+    border: 0.5px solid grey;
+    border-radius: 5px;
+    height: 100px;
+    width: 90%;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding: 10px;
+    outline: none;
+}
+
+#post-image-link, .edit-post-image-link {
+    display: block;
+    border: 0.5px solid grey;
+    border-radius: 5px;
+    height: 50px;
+    width: 90%;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding: 10px;
+    outline: none;
+}
+
+.board-name {
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 30px;
+    font-size: 50px;
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+}
+
+.post-board-text {
+    display: block;
+    font-size: 13px;
+}
+
+.post-board-link:link {
+    color: grey;
+    text-decoration: underline;
+}
+
+.post-board-link:visited {
+    color: grey;
+    text-decoration: underline;
+}
+
+.post-board-link:hover {
+    color: grey;
+    text-decoration: underline;
+}
+
+.post-board-link:active {
+    color: grey;
+    text-decoration: underline;
+}
+
+.post-img {
+    display: block;
+    margin-top: 10px;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 400px;
+}
+
+.post-content {
+    margin-top: 10px;
+    word-wrap: break-word;
+    width: 90%;
+}
+
+.post-timestamp {
+    color: grey;
+    font-size: 12px;
+    margin-top: 10px;
+}
+
+.post-user:link {
+    color: black;
+    text-decoration: none;
+}
+
+.post-user:visited {
+    color: black;
+    text-decoration: none;
+}
+
+.post-user:hover {
+    color: black;
+    text-decoration: none;
+}
+
+.post-user:active {
+    color: black;
+    text-decoration: none;
+}
+
+#like-button {
+    width: 24px;
+    padding-left: 2px;
+}
+
+#like-button:focus {
+    width: 24px;
+    padding-left: 2px;
+    box-shadow: none
+}
+
+i {
+    font-size: 20px;
+    color: rgb(49, 49, 180);
+}
+
+.post-likecount {
+    display: inline;
+    margin-left: 2px;
+    margin-right: 10px;
+    color: grey;
+}
+
+#comment-button {
+    display: inline-block;
+}
+
+.comments-div {
+    display: block;
+    margin-top: 20px;
+}
+
+.profile-name, .follow-page-title {
+    text-align: center;
+    font-size: 50px;
+}
+
+.profile-info-div {
+    text-align: center;
+}
+
+.profile-followers, .profile-following {
+    margin-top: 10px;
+    margin-left: 10px;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+#follow-btn {
+    margin-left: 10px;
+}
+
+.pagination {
+    display: block;
+    text-align: center;
+    bottom: 0;
+}
+
+.empty-message {
+    text-align: center;
+    font-size: 30px;
+}
+
+.comments-header {
+    text-align: center;
+}
+
+.comments-header-text {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+#back-button {
+    margin-bottom: 20px;
+    position: relative;
+    float: right;
+}
+
+#back-icon {
+    color: grey;
+}
+
+.comment-error-message {
+    display: block;
+    margin-top: 30px;
+    color: red;
+}
+
+#sort-dropdown-div {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.board-description {
+    display: block;
+    text-align: center;
+    font-family: 'Courier New', Courier, monospace;
+}

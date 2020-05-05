@@ -1,0 +1,76 @@
+{% extends "forum/layout.html" %}
+{% load static %}
+
+{% block body %}
+    <div class="posts-page" data-viewer="{{ request.user.username }}">
+        <h2 class="profile-name">{{ username }}'s Profile</h2>
+        <div class="profile-info-div">
+            <h3>Information</h3>
+            <p class="profile-followers">{{ followers_count_text }}</p>
+            {% if user.is_authenticated and not own_profile %}
+                <form action="{% url 'view-user' username %}" method="post">
+                    {% csrf_token %}
+                    <input id="follow-btn" type="submit" class="btn btn-outline-primary" value="{{ follow_button_text }}"/>
+                </form>
+            {% endif %}
+            <p class="profile-following">{{ following_count_text }}</p>
+        </div>
+        {% for post in page_obj %}
+            <div class="post-div" data-post="{{ post.id }}">
+                <h5>
+                    <a href="{% url 'view-user' post.author %}" class="post-user">
+                        {{ post.author }}
+                    </a>
+                </h5>
+                <p class="post-board-text">
+                    Foorum/ <a href="{% url 'view-board' post.board.id %}" class="post-board-link">
+                        {{ post.board.name }}
+                    </a>
+                </p>
+                {% if request.user == post.author%}
+                    <button type="button" class="btn btn-outline-warning">
+                        Edit
+                    </button>
+                {% endif %}
+                {% if post.image_link %}
+                    <img class="post-img" src="{{ post.image_link }}">
+                {% endif %}
+                <p class="post-content">{{ post.content|urlize }}</p>
+                <p class="post-timestamp">{{ post.timestamp|date:"N j Y, g:i A" }}</p>
+                {% if user.is_authenticated %}
+                    <button class="btn" id="like-button">
+                        <i class='far fa-thumbs-up' id="like-icon"></i>
+                    </button>
+                    <p class="post-likecount">{{ post.num_likes }}</p>
+                {% endif %}
+                <a id="comment-button" type="button" class="btn btn-outline-secondary" href="{% url 'view-comments' post.id %}" role="button">
+                    Comments ({{ post.comments.count }})
+                </a>
+            </div>
+        {% empty %}
+            <p class="empty-message">No posts.</p>
+        {% endfor %}
+    </div>
+
+    <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?page=1">&laquo; first</a>
+                <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+            {% endif %}
+    
+            <span class="current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+            </span>
+    
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'forum/script.js' %}"></script>
+{% endblock %}

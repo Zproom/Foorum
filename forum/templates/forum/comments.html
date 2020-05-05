@@ -1,0 +1,82 @@
+{% extends "forum/layout.html" %}
+{% load static %}
+
+{% block body %}
+    <div class="posts-page" data-viewer="{{ request.user.username }}">
+        <div class="post-div" data-post="{{ post.id }}">
+            <a type="button" class="btn btn-outline-dark" id="back-button" href="{{ request.META.HTTP_REFERER }}" role="button">
+                <i class="fas fa-times" id="back-icon"></i> 
+            </a>
+            <h2>
+                <a href="{% url 'view-user' post.author %}" class="post-user">
+                    {{ post.author }}
+                </a>
+            </h2>
+            {% if request.user == post.author %}
+                <button type="button" class="btn btn-outline-warning">
+                    Edit
+                </button>
+            {% endif %}
+            {% if post.image_link %}
+                <img class="post-img" src="{{ post.image_link }}">
+            {% endif %}
+            <h5 class="post-content">{{ post.content|urlize }}</h5>
+            <p class="post-timestamp">{{ post.timestamp|date:"N j Y, g:i A" }}</p>
+            {% if user.is_authenticated %}
+                <button class="btn" id="like-button">
+                    <i class='far fa-thumbs-up' id="like-icon"></i>
+                </button>
+                <p class="post-likecount">{{ post.num_likes }}</p>
+                <a id="comment-button" type="button" class="btn btn-secondary" href="{{ request.META.HTTP_REFERER }}" role="button">
+                    Comments ({{ post.comments.count }})
+                </a>
+            {% endif %}
+            <hr>
+            <div class="comments-header">
+                <h3 class="comments-header-text">All Comments</h3>
+            </div>
+            <hr>
+            {% if user.is_authenticated %}
+                <h4>New Comment</h4>
+                <form>
+                    <textarea id="post-textarea" placeholder="Start typing your comment here..."></textarea>
+                    <textarea id="post-image-link" placeholder="Insert image link (optional)"></textarea>
+                    <button type="button" class="btn btn-info">Submit</button>
+                </form>
+                <hr>
+            {% endif %}
+            <div class="all-comments-div">
+                {% for comment in comments %}
+                <div class="comment-div" data-comment="{{ comment.id }}">
+                    <h5>
+                        <a href="{% url 'view-user' comment.author %}" class="post-user">
+                            {{ comment.author }}
+                        </a>
+                    </h5>
+                    {% if request.user == comment.author %}
+                        <button type="button" class="btn btn-outline-warning">
+                            Edit
+                        </button>
+                    {% endif %}
+                    {% if comment.image_link %}
+                        <img class="post-img" src="{{ comment.image_link }}">
+                    {% endif %}
+                    <p class="post-content">{{ comment.content|urlize }}</p>
+                    <p class="post-timestamp">{{ comment.timestamp|date:"N j Y, g:i A" }}</p>
+                    {% if user.is_authenticated %}
+                        <button class="btn" id="like-button">
+                            <i class='far fa-thumbs-up' id="like-icon"></i>
+                        </button>
+                        <p class="post-likecount">{{ comment.num_likes }}</p>
+                    {% endif %}
+                    <hr>
+                </div>
+            {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'forum/script.js' %}"></script>
+{% endblock %}

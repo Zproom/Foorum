@@ -1,0 +1,30 @@
+{% extends "forum/layout.html" %}
+{% load static %}
+
+{% block body %}
+    <div class="posts-page" data-viewer="{{ request.user.username }}">
+        <h1 class="index-title">All Boards</h1>
+        <div class="index-board-list">
+        {% for board in boards %}
+            <a href="{% url 'view-board' board.id %}" class="index-board-link">
+                {{ board.name }}
+            </a>
+        {% empty %}
+            <p class="empty-message">No boards.</p>
+        {% endfor %}
+        {% if has_permission %}
+        <div class="create-board-div">
+            <h4>Create New Board</h4>
+            <form action="{% url 'index' %}" method="post">
+                {% csrf_token %}
+                {{ form }}
+                <input type="submit" class="btn btn-primary"/>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'forum/script.js' %}"></script>
+{% endblock %}
