@@ -243,8 +243,8 @@ def view_user(request, username):
     if following_count == 1:
         following_count_text = f"{user.username} follows 1 user."
     else:
-        following_count_text = (f"{user.username} follows" 
-                                "{following_count} users.")
+        following_count_text = f"{user.username} follows " \
+                               f"{following_count} users."
     return render(request, "forum/user.html", {
         "username": user.username,
         "followers_count_text": followers_count_text,
