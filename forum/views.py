@@ -14,24 +14,28 @@ from django.db.models import Count
 from .models import User, Post, Board, Comment
 
 
-# Defines a form for creating posts and comments. 
+# Defines a form for creating posts and comments.
 # Since the post and comment models are so similar,
-# the post form can be repurposed for new comments 
+# the post form can be repurposed for new comments
 class NewPostForm(ModelForm):
     class Meta:
         model = Post
         fields = ['content', 'image_link']
         widgets = {
-            'content': Textarea(attrs={'id': 'post-textarea',
-            'placeholder': 'Start typing your thoughts here...'}),
-            'image_link': Textarea(attrs={'id': 'post-image-link',
-            'placeholder': 'Insert image link (optional)'})
+            'content': Textarea(
+                attrs={
+                    'id': 'post-textarea',
+                    'placeholder': 'Start typing your thoughts here...'}),
+            'image_link': Textarea(
+                attrs={
+                    'id': 'post-image-link',
+                    'placeholder': 'Insert image link (optional)'})
         }
         labels = {
             'content': '',
             'image_link': ''
         }
-        
+
 
 # Defines a form for creating a board
 class NewBoardForm(ModelForm):
@@ -39,10 +43,14 @@ class NewBoardForm(ModelForm):
         model = Board
         fields = ['name', 'description']
         widgets = {
-            'name': Textarea(attrs={'id': 'post-image-link',
-            'placeholder': 'Enter the name of your board.'}),
-            'description': Textarea(attrs={'id': 'post-textarea',
-            'placeholder': 'Enter a description for your board.'})
+            'name': Textarea(
+                attrs={
+                    'id': 'post-image-link',
+                    'placeholder': 'Enter the name of your board.'}),
+            'description': Textarea(
+                attrs={
+                    'id': 'post-textarea',
+                    'placeholder': 'Enter a description for your board.'})
         }
         labels = {
             'name': '',
@@ -51,12 +59,12 @@ class NewBoardForm(ModelForm):
 
 
 def index(request):
-    
+
     # Display a list of all of the Boards
     boards = Board.objects.all()
 
     # Check if the user has permission to create a new
-    # Board. If the user has the required permission, 
+    # Board. If the user has the required permission,
     # display a form to create a new Board
     if request.user.has_perm('forum.add_board'):
         has_permission = True
@@ -69,7 +77,8 @@ def index(request):
 
         # Error handling
         if board.is_valid():
-            new_board = Board(name=board.cleaned_data["name"], 
+            new_board = Board(
+                name=board.cleaned_data["name"],
                 description=board.cleaned_data["description"])
             new_board.save()
             return HttpResponseRedirect(reverse("index"))
@@ -87,15 +96,15 @@ def index(request):
 
 
 # View the user sees after clicking on a Board name on the
-# index page 
+# index page
 def view_board(request, board_id):
 
     # Query for requested board
-    try: 
+    try:
         board = Board.objects.get(pk=board_id)
     except Board.DoesNotExist:
         return HttpResponse("Error: Page does not exist.")
-    
+
     # Check the sorting criteria. Order the posts accordingly and paginate.
     # If no GET parameter is supplied, set sort to "" (sort by new to old)
     sort = request.GET.get("q", "")
@@ -106,14 +115,16 @@ def view_board(request, board_id):
         posts = Post.objects.filter(board=board.id).order_by("num_likes")
         page_obj = paginate(request, posts)
     elif sort == "comments_high_low":
-        posts = Post.objects.filter(board=board.id).annotate(num_comments=Count('comments')).order_by('-num_comments')
+        posts = Post.objects.filter(board=board.id) \
+            .annotate(num_comments=Count('comments')).order_by('-num_comments')
         page_obj = paginate(request, posts)
     elif sort == "comments_low_high":
-        posts = Post.objects.filter(board=board.id).annotate(num_comments=Count('comments')).order_by('num_comments')
+        posts = Post.objects.filter(board=board.id) \
+            .annotate(num_comments=Count('comments')).order_by('num_comments')
         page_obj = paginate(request, posts)
     elif sort == "timestamp_new_old":
         posts = Post.objects.filter(board=board.id).order_by("-timestamp")
-        page_obj = paginate(request, posts)    
+        page_obj = paginate(request, posts)
     elif sort == "timestamp_old_new":
         posts = Post.objects.filter(board=board.id).order_by("timestamp")
         page_obj = paginate(request, posts)
@@ -127,12 +138,15 @@ def view_board(request, board_id):
 
         # Error handling
         if post.is_valid():
-            new_post = Post(author=request.user, 
+            new_post = Post(
+                author=request.user,
                 board=board,
                 content=post.cleaned_data["content"],
                 image_link=post.cleaned_data["image_link"])
             new_post.save()
-            return HttpResponseRedirect(reverse("view-board", args=(board.id,)))
+            return HttpResponseRedirect(reverse(
+                "view-board",
+                args=(board.id,)))
         else:
             return render(request, "forum/board.html", {
                 "board": board,
@@ -150,14 +164,14 @@ def view_board(request, board_id):
 # View the user sees after clicking on the Comments button
 # in a post (displays comments)
 def view_comments(request, post_id):
-    
+
     # Query for requested post
-    try: 
+    try:
         post = Post.objects.get(pk=post_id)
     except Post.DoesNotExist:
         return HttpResponse("Error: Post does not exist.")
 
-    # List the comments in reverse chronological order 
+    # List the comments in reverse chronological order
     comments = Comment.objects.filter(post=post.id).order_by("-timestamp")
     return render(request, "forum/comments.html", {
         "post": post,
@@ -166,11 +180,11 @@ def view_comments(request, post_id):
     })
 
 
-# View the user sees after clicking on a username in a post 
+# View the user sees after clicking on a username in a post
 def view_user(request, username):
 
     # Query for requested user
-    try: 
+    try:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
         return HttpResponse("Error: Page does not exist.")
@@ -188,8 +202,9 @@ def view_user(request, username):
     # Check if the user is already following this profile and
     # set the button text accordingly
     try:
-        already_following = request.user.following.all().filter(username=username).exists()
-    
+        already_following = request.user.following.all() \
+            .filter(username=username).exists()
+
     # Handles the case where a user is not signed in
     except:
         already_following = False
@@ -198,10 +213,10 @@ def view_user(request, username):
     else:
         follow_button_text = "Follow"
 
-    # User clicks Follow or Unfollow button 
+    # User clicks Follow or Unfollow button
     if request.method == "POST":
-        
-        # If the user is already following this profile, remove the 
+
+        # If the user is already following this profile, remove the
         # profile from their following field. Also, remove the user
         # from the profile user's followers field
         if already_following:
@@ -215,7 +230,7 @@ def view_user(request, username):
             request.user.following.add(user)
             user.followers.add(request.user)
             follow_button_text = "Unfollow"
-    
+
     # Check the number of users the user follows (following)
     # and the number of followers the user has (followers)
     # and set the grammatical number accordingly
@@ -228,25 +243,27 @@ def view_user(request, username):
     if following_count == 1:
         following_count_text = f"{user.username} follows 1 user."
     else:
-        following_count_text = f"{user.username} follows {following_count} users."
+        following_count_text = (f"{user.username} follows" 
+                                "{following_count} users.")
     return render(request, "forum/user.html", {
-        "username": user.username, 
+        "username": user.username,
         "followers_count_text": followers_count_text,
         "following_count_text": following_count_text,
         "own_profile": own_profile,
         "follow_button_text": follow_button_text,
         "page_obj": page_obj
-    })    
+    })
 
 
-# View the user sees after clicking on the Following link 
+# View the user sees after clicking on the Following link
 def view_following(request):
-    following_posts = Post.objects.filter(author__in=request.user.following.all()).order_by("-timestamp")
+    following_posts = Post.objects \
+        .filter(author__in=request.user.following.all()).order_by("-timestamp")
     page_obj = paginate(request, following_posts)
     return render(request, "forum/following.html", {
         "page_obj": page_obj
     })
-    
+
 
 # Paginates a list of posts or comments
 def paginate(request, items):
@@ -255,7 +272,7 @@ def paginate(request, items):
     return paginator.get_page(page_number)
 
 
-# Handles requests to the post API route 
+# Handles requests to the post API route
 @login_required
 def post(request, post_id):
 
@@ -263,13 +280,13 @@ def post(request, post_id):
     try:
         post = Post.objects.get(pk=post_id)
     except Post.DoesNotExist:
-        return JsonResponse({"error": "Post not found."}, status=404) 
+        return JsonResponse({"error": "Post not found."}, status=404)
 
     # Return post information
     if request.method == "GET":
         return JsonResponse(post.serialize())
 
-    # Update the post's content, image link, or like count 
+    # Update the post's content, image link, or like count
     elif request.method == "PUT":
         data = json.loads(request.body)
         if data.get("content") is not None:
@@ -277,9 +294,9 @@ def post(request, post_id):
         if data.get("image_link") is not None:
             post.image_link = data["image_link"]
         if data.get("like") is not None:
-            
+
             # Check if the viewer has already liked the post
-            if post in request.user.likes.all(): 
+            if post in request.user.likes.all():
                 post.num_likes -= 1
             else:
                 post.num_likes += 1
@@ -293,7 +310,7 @@ def post(request, post_id):
         }, status=400)
 
 
-# Handles requests to the user API route 
+# Handles requests to the user API route
 @login_required
 def user(request, username):
 
@@ -301,13 +318,13 @@ def user(request, username):
     try:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
-        return JsonResponse({"error": "User not found."}, status=404) 
+        return JsonResponse({"error": "User not found."}, status=404)
 
     # Return user information
     if request.method == "GET":
         return JsonResponse(user.serialize())
 
-    # Update the user's likes field 
+    # Update the user's likes field
     elif request.method == "PUT":
         data = json.loads(request.body)
         if data.get("post_id") is not None:
@@ -318,7 +335,7 @@ def user(request, username):
                 user.likes.remove(post)
             else:
                 user.likes.add(post)
-        
+
         # Update the user's comment likes field
         elif data.get("comment_id") is not None:
             comment = Comment.objects.get(pk=data["comment_id"])
@@ -340,7 +357,7 @@ def user(request, username):
 # Handles requests to the compose comment API route
 @login_required
 def compose_comment(request, post_id):
-    
+
     # Composing a new comment must be via POST
     if request.method != "POST":
         return JsonResponse({"error": "POST request required."}, status=400)
@@ -351,7 +368,8 @@ def compose_comment(request, post_id):
     image_link = data.get("image_link", "")
     if not content or len(content) > 1000:
         return JsonResponse({
-            "error": "Your post content must not be empty and cannot exceed 1000 characters."
+            "error": ("Your post content must not be empty"
+                      "and cannot exceed 1000 characters.")
         }, status=400)
     if len(image_link) > 3000:
         return JsonResponse({
@@ -359,7 +377,7 @@ def compose_comment(request, post_id):
         }, status=400)
 
     # Query for requested post
-    try: 
+    try:
         post = Post.objects.get(pk=post_id)
     except Post.DoesNotExist:
         return HttpResponse("Error: Post does not exist.")
@@ -379,18 +397,18 @@ def compose_comment(request, post_id):
 # Handles requests to the comment API route
 @login_required
 def comment(request, comment_id):
-    
+
     # Query for requested comment
     try:
         comment = Comment.objects.get(pk=comment_id)
     except Comment.DoesNotExist:
-        return JsonResponse({"error": "Comment not found."}, status=404) 
+        return JsonResponse({"error": "Comment not found."}, status=404)
 
     # Return comment information
     if request.method == "GET":
         return JsonResponse(comment.serialize())
 
-    # Update the comment's content, image link, or like count 
+    # Update the comment's content, image link, or like count
     elif request.method == "PUT":
         data = json.loads(request.body)
         if data.get("content") is not None:
@@ -398,9 +416,9 @@ def comment(request, comment_id):
         if data.get("image_link") is not None:
             comment.image_link = data["image_link"]
         if data.get("like") is not None:
-            
+
             # Check if the viewer has already liked the comment
-            if comment in request.user.comment_likes.all(): 
+            if comment in request.user.comment_likes.all():
                 comment.num_likes -= 1
             else:
                 comment.num_likes += 1
@@ -413,7 +431,7 @@ def comment(request, comment_id):
             "error": "GET or PUT request required."
         }, status=400)
 
- 
+
 def login_view(request):
     if request.method == "POST":
 
