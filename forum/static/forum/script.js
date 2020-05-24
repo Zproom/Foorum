@@ -233,22 +233,6 @@ function like_item(item) {
             console.log('Error:', error);
         });
 
-        // Send a PUT request to the post ID's route
-        fetch(`/forum/${item_id}`, {
-            headers: {
-                'X-CSRFToken': csrftoken
-            },
-            method: 'PUT',
-            body: JSON.stringify({
-                like: true 
-            })
-        })
-
-        // Error handling
-        .catch(error => {
-            console.log('Error:', error);
-        });
-
         // Send a PUT request to the viewer's route
         fetch(`/forum/${viewer_name}`, {
             headers: {

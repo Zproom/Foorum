@@ -109,27 +109,29 @@ def view_board(request, board_id):
     # If no GET parameter is supplied, set sort to "" (sort by new to old)
     sort = request.GET.get("q", "")
     if sort == "likes_high_low":
-        posts = Post.objects.filter(board=board.id).order_by("-num_likes")
+        posts = board.posts.all() \
+            .annotate(num_likes=Count('like_users')).order_by("-num_likes")
         page_obj = paginate(request, posts)
     elif sort == "likes_low_high":
-        posts = Post.objects.filter(board=board.id).order_by("num_likes")
+        posts = board.posts.all() \
+            .annotate(num_likes=Count('like_users')).order_by("num_likes")
         page_obj = paginate(request, posts)
     elif sort == "comments_high_low":
-        posts = Post.objects.filter(board=board.id) \
+        posts = board.posts.all() \
             .annotate(num_comments=Count('comments')).order_by('-num_comments')
         page_obj = paginate(request, posts)
     elif sort == "comments_low_high":
-        posts = Post.objects.filter(board=board.id) \
+        posts = board.posts.all() \
             .annotate(num_comments=Count('comments')).order_by('num_comments')
         page_obj = paginate(request, posts)
     elif sort == "timestamp_new_old":
-        posts = Post.objects.filter(board=board.id).order_by("-timestamp")
+        posts = board.posts.all().order_by("-timestamp")
         page_obj = paginate(request, posts)
     elif sort == "timestamp_old_new":
-        posts = Post.objects.filter(board=board.id).order_by("timestamp")
+        posts = board.posts.all().order_by("timestamp")
         page_obj = paginate(request, posts)
     else:
-        posts = Post.objects.filter(board=board.id).order_by("-timestamp")
+        posts = board.posts.all().order_by("-timestamp")
         page_obj = paginate(request, posts)
 
     # User creates a post
@@ -172,7 +174,7 @@ def view_comments(request, post_id):
         return HttpResponse("Error: Post does not exist.")
 
     # List the comments in reverse chronological order
-    comments = Comment.objects.filter(post=post.id).order_by("-timestamp")
+    comments = post.comments.all().order_by("-timestamp")
     return render(request, "forum/comments.html", {
         "post": post,
         "form": NewPostForm(),
@@ -191,7 +193,7 @@ def view_user(request, username):
 
     # List the posts associated with the profile in reverse chronological
     # order and paginate
-    profile_posts = Post.objects.filter(author=user).order_by("-timestamp")
+    profile_posts = user.posts.all().order_by("-timestamp")
     page_obj = paginate(request, profile_posts)
 
     # Check if the user is viewing their own profile
@@ -217,24 +219,20 @@ def view_user(request, username):
     if request.method == "POST":
 
         # If the user is already following this profile, remove the
-        # profile from their following field. Also, remove the user
-        # from the profile user's followers field
+        # profile from their following field
         if already_following:
             request.user.following.remove(user)
-            user.followers.remove(request.user)
             follow_button_text = "Follow"
 
-        # Otherwise, add the profile to the user's following field and
-        # add the user to the profile user's follower field
+        # Otherwise, add the profile to the user's following field
         else:
             request.user.following.add(user)
-            user.followers.add(request.user)
             follow_button_text = "Unfollow"
 
     # Check the number of users the user follows (following)
     # and the number of followers the user has (followers)
     # and set the grammatical number accordingly
-    followers_count = user.followers.count()
+    followers_count = user.following_users.count()
     following_count = user.following.count()
     if followers_count == 1:
         followers_count_text = "1 Follower"
@@ -293,13 +291,6 @@ def post(request, post_id):
             post.content = data["content"]
         if data.get("image_link") is not None:
             post.image_link = data["image_link"]
-        if data.get("like") is not None:
-
-            # Check if the viewer has already liked the post
-            if post in request.user.likes.all():
-                post.num_likes -= 1
-            else:
-                post.num_likes += 1
         post.save()
         return HttpResponse(status=204)
 

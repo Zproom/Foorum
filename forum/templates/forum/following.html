@@ -24,7 +24,7 @@
                 <button class="btn" id="like-button">
                     <i class='far fa-thumbs-up' id="like-icon"></i>
                 </button>
-                <p class="post-likecount">{{ post.num_likes }}</p>
+                <p class="post-likecount">{{ post.like_users.count }}</p>
                 <a id="comment-button" type="button" class="btn btn-outline-secondary" href="{% url 'view-comments' post.id %}" role="button">
                     Comments ({{ post.comments.count }})
                 </a>
