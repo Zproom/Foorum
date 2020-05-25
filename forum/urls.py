@@ -20,6 +20,5 @@ urlpatterns = [
     path(
         "forum/comment/compose/<int:post_id>",
         views.compose_comment,
-        name="compose_comment"),
-    path("forum/comment/<int:comment_id>", views.comment, name="comment")
+        name="compose_comment")
 ]

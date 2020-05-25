@@ -28,7 +28,7 @@
                 </button>
                 <p class="post-likecount">{{ post.like_users.count }}</p>
                 <a id="comment-button" type="button" class="btn btn-secondary" href="{{ request.META.HTTP_REFERER }}" role="button">
-                    Comments ({{ post.comments.count }})
+                    Comments ({{ post.child_posts.count }})
                 </a>
             {% endif %}
             <hr>
@@ -67,7 +67,7 @@
                         <button class="btn" id="like-button">
                             <i class='far fa-thumbs-up' id="like-icon"></i>
                         </button>
-                        <p class="post-likecount">{{ comment.num_likes }}</p>
+                        <p class="post-likecount">{{ comment.like_users.count }}</p>
                     {% endif %}
                     <hr>
                 </div>

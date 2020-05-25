@@ -26,7 +26,7 @@
                 </button>
                 <p class="post-likecount">{{ post.like_users.count }}</p>
                 <a id="comment-button" type="button" class="btn btn-outline-secondary" href="{% url 'view-comments' post.id %}" role="button">
-                    Comments ({{ post.comments.count }})
+                    Comments ({{ post.child_posts.count }})
                 </a>
             </div>
         {% empty %}

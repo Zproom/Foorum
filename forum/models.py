@@ -14,19 +14,13 @@ class User(AbstractUser):
         "Post", 
         blank=True,
         related_name="like_users")
-    comment_likes = models.ManyToManyField(
-        "Comment", 
-        blank=True,
-        related_name="comment_like_users")
 
     # Translate the User model into JSON format
     def serialize(self):
         return {
             "username": self.username,
             "following": [user.username for user in self.following.all()],
-            "likes": [post.serialize() for post in self.likes.all()],
-            "comment_likes": [comment.serialize() for comment in \
-                              self.comment_likes.all()]
+            "likes": [post.serialize() for post in self.likes.all()]
         }
 
     # Give the User model a readable name including its username
@@ -35,7 +29,9 @@ class User(AbstractUser):
 
 
 # Create a Post model with fields for a Post's author, board,
-# content, and other properties
+# content, and other properties. The Post model is also used for
+# Comments. The parent field identifies a comment's parent post. 
+# Top-level posts have a parent field that is null (parent=None)
 class Post(models.Model):
     author = models.ForeignKey(
         User,
@@ -45,55 +41,33 @@ class Post(models.Model):
         "Board",
         on_delete=models.CASCADE,
         related_name='posts')
+    parent = models.ForeignKey(
+        "self",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='child_posts')
     content = models.CharField(max_length=1000)
     image_link = models.URLField(max_length=3000, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     # Translate the Post model into JSON format
     def serialize(self):
+        if self.parent is not None:
+            parent = self.parent.id
+        else:
+            parent = None
         return {
             "id": self.id,
             "author": self.author.username,
             "board": self.board.name,
+            "parent": parent,
             "content": self.content,
             "image_link": self.image_link,
             "timestamp": self.timestamp.strftime("%b %-d %Y, %-I:%M %p")
         }
 
     # Give the Post model a readable name including its author and timestamp
-    def __str__(self):
-        return f"{self.author.username} {self.timestamp}"
-
-
-# Create a Comment model with fields for a Comment's author, post,
-# content, and other properties
-class Comment(models.Model):
-    author = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='comments')
-    post = models.ForeignKey(
-        Post,
-        on_delete=models.CASCADE,
-        related_name='comments')
-    content = models.CharField(max_length=1000)
-    image_link = models.URLField(max_length=3000, blank=True)
-    num_likes = models.IntegerField(default=0)
-    timestamp = models.DateTimeField(auto_now_add=True)
-
-    # Translate the Comment model into JSON format
-    def serialize(self):
-        return {
-            "id": self.id,
-            "author": self.author.username,
-            "post_id": self.post.id,
-            "content": self.content,
-            "image_link": self.image_link,
-            "num_likes": self.num_likes,
-            "timestamp": self.timestamp.strftime("%b %-d %Y, %-I:%M %p")
-        }
-
-    # Give the Comment model a readable name including its author and timestamp
     def __str__(self):
         return f"{self.author.username} {self.timestamp}"
 
@@ -106,4 +80,3 @@ class Board(models.Model):
     # Give the Board model a readable name including its name
     def __str__(self):
         return f"{self.name}"
-        

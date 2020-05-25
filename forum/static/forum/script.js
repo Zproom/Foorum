@@ -6,13 +6,13 @@ var csrftoken = getCookie('csrftoken');
 document.addEventListener('click', event => {
     
     /* 
-    IMPORTANT: Posts and comments are mostly treated the same
-    in this script. Event handling and updates to the DOM are 
-    the same, but API requests differ. Thus, POSTS AND COMMENTS
-    ARE REFERRED TO USING THE UMBRELLA TERM "item." Importantly, 
-    comments inherit a lot of the post HTML attributes (class 
-    names) for styling convenience; the div containers for 
-    comments and posts have different class names, however 
+    IMPORTANT: Posts and comments are treated the same in 
+    this script. Event handling and updates to the DOM are 
+    the same. Posts and comments are both referred to with the
+    umbrella term "item." Importantly, comments inherit a lot of 
+    the post HTML attributes (class names) for styling convenience; 
+    the div containers for comments and posts have different class
+    names, however 
     */
 
     // Store the clicked button and the item's (post's or
@@ -60,6 +60,7 @@ function edit_item(item) {
     try {
         item_image_link = item.querySelector('.post-img').src;
     }
+
     // Otherwise, set the image link equal to an empty string
     catch {
         item_image_link = '';
@@ -94,26 +95,19 @@ function edit_item(item) {
 // comments) in the database and updates the DOM
 function save_edits(item) {
     
-    // Store the updated item content and updated image link
+    // Store the item ID, updated item content, and updated image link
+    var item_id;
+    if (item.className === 'post-div') {
+        item_id = parseInt(item.dataset["post"]);
+    }
+    else if (item.className === 'comment-div') {
+        item_id = parseInt(item.dataset["comment"]);
+    }
     const new_content = item.querySelector('.edit-post-textarea').value;
     const img_link = item.querySelector('.edit-post-image-link').value;
 
-    // Check if the item is a post or a comment before making
-    // an API request
-    var api_route;
-
-    // Item is a post
-    if (item.className === 'post-div') {
-        api_route = `/forum/${parseInt(item.dataset["post"])}`;
-    }
-    
-    // Item is a comment
-    else if (item.className === 'comment-div') {
-        api_route = `/forum/comment/${item.dataset["comment"]}`;
-    }
-
     // Send a PUT request to the item ID's route
-    fetch(api_route, {
+    fetch(`/forum/${item_id}`, {
         headers: {
             'X-CSRFToken': csrftoken
         },
@@ -194,143 +188,6 @@ function save_edits(item) {
 }
 
 
-// Updates a user's likes and the item's (post's or comment's)
-// like count in the database and updates the DOM   
-function like_item(item) {
-    
-    // Check if the item is a post or a comment before making
-    // an API request. Store the item ID and viewer's username for 
-    // requests. Also create a boolean that indicates whether the 
-    // viewer has liked the item and store the user API route
-    var item_id;
-    const viewer_name = document.querySelector('.posts-page').dataset["viewer"];
-    var already_liked = false;
-    const user_api_route = `/forum/${viewer_name}`;
-
-    // Item is a post
-    if (item.className === 'post-div') {
-        item_id = parseInt(item.dataset["post"]);
-
-        // Make a GET request to the username's route to see
-        // if the user has liked the post
-        fetch(user_api_route)
-
-        // Convert response to JSON data
-        .then(response => response.json())
-
-        // Update the boolean variable if the user has
-        // already liked the post
-        .then(user => {
-            user.likes.forEach(function(liked_post) {
-                if (liked_post.id === item_id) {
-                    already_liked = true;
-                }
-            }); 
-        })
-
-        // Error handling
-        .catch(error => {
-            console.log('Error:', error);
-        });
-
-        // Send a PUT request to the viewer's route
-        fetch(`/forum/${viewer_name}`, {
-            headers: {
-                'X-CSRFToken': csrftoken
-            },
-            method: 'PUT',
-            body: JSON.stringify({
-                post_id: item_id
-            })
-        })
-        .then(() => {
-            update_like_count(item, already_liked);
-        })
-
-        // Error handling
-        .catch(error => {
-            console.log('Error:', error);
-        });
-    }
-    
-    // Item is a comment
-    else if (item.className === 'comment-div') {
-        item_id = parseInt(item.dataset["comment"]);
-
-        // Make a GET request to the username's route to see
-        // if the user has liked the comment
-        fetch(user_api_route)
-
-        // Convert response to JSON data
-        .then(response => response.json())
-
-        // Update the boolean variable if the user has
-        // already liked the comment
-        .then(user => {
-            user.comment_likes.forEach(function(liked_comment) {
-                if (liked_comment.id === item_id) {
-                    already_liked = true;
-                }
-            }); 
-        })
-
-        // Error handling
-        .catch(error => {
-            console.log('Error:', error);
-        });
-
-        // Send a PUT request to the comment ID's route
-        fetch(`/forum/comment/${item_id}`, {
-            headers: {
-                'X-CSRFToken': csrftoken
-            },
-            method: 'PUT',
-            body: JSON.stringify({
-                like: true 
-            })
-        })
-
-        // Error handling
-        .catch(error => {
-            console.log('Error:', error);
-        });
-
-        // Send a PUT request to the viewer's route
-        fetch(`/forum/${viewer_name}`, {
-            headers: {
-                'X-CSRFToken': csrftoken
-            },
-            method: 'PUT',
-            body: JSON.stringify({
-                comment_id: item_id
-            })
-        })
-        .then(() => {
-            update_like_count(item, already_liked);
-        })
-
-        // Error handling
-        .catch(error => {
-            console.log('Error:', error);
-        });
-    }
-}
-
-
-// Updates an item's like count in the DOM
-function update_like_count(item, already_liked) {
-    var like_count_element = item.querySelector('.post-likecount');
-    var like_count = parseInt(like_count_element.innerHTML);
-    if (already_liked) {
-        like_count -= 1;
-        like_count_element.innerHTML = like_count;
-    }
-    else {
-        like_count += 1;
-        like_count_element.innerHTML = like_count;
-    }
-}
-
 // Creates a new comment on a post by making an API call
 // to the comments route
 function create_comment() {
@@ -374,7 +231,7 @@ function create_comment() {
     // Store the post ID
     const post_id = document.querySelector('.post-div').dataset["post"];
 
-    // Send a POST request to the /emails route
+    // Send a POST request to the comment compose route
     fetch(`/forum/comment/compose/${post_id}`, {
         headers: {
             'X-CSRFToken': csrftoken
@@ -415,9 +272,8 @@ function create_comment() {
         new_comment.innerHTML += `<button class="btn" id="like-button"><i class='far fa-thumbs-up' id="like-icon"></i></button>`;
 
         // Setting the margin of the like count does not work without specifying it 
-        // in JavaScript (CSS not being read). Added a style attribute here to 
-        // fix this issue
-        new_comment.innerHTML += `<p class="post-likecount" style="margin-left: 6.5px">${comment.num_likes}</p>`;
+        // in JavaScript. Added a style attribute here to fix this issue
+        new_comment.innerHTML += `<p class="post-likecount" style="margin-left: 6.5px">0</p>`;
         new_comment.innerHTML += `<hr>`;
         parent_element.prepend(new_comment);
     })
@@ -426,6 +282,82 @@ function create_comment() {
     .catch(error => {
         console.log('Error:', error);
     });
+}
+
+
+// Updates a user's likes and updates the DOM when 
+// the user likes a post or comment   
+function like_item(item) {
+    
+    // Store the item ID and viewer's username for 
+    // requests. Also create a boolean that indicates whether the 
+    // viewer has liked the item and store the user API route
+    var item_id;
+    if (item.className === 'post-div') {
+        item_id = parseInt(item.dataset["post"]);
+    }
+    else if (item.className === 'comment-div') {
+        item_id = parseInt(item.dataset["comment"]);
+    }
+    const viewer_name = document.querySelector('.posts-page').dataset["viewer"];
+    var already_liked = false;
+    const user_api_route = `/forum/${viewer_name}`;
+
+    // Make a GET request to the username's route to see
+    // if the user has liked the post or comment
+    fetch(user_api_route)
+
+    // Convert response to JSON data
+    .then(response => response.json())
+
+    // Update the boolean variable if the user has
+    // already liked the post or comment
+    .then(user => {
+        user.likes.forEach(function(liked_post) {
+            if (liked_post.id === item_id) {
+                already_liked = true;
+            }
+        }); 
+    })
+
+    // Error handling
+    .catch(error => {
+        console.log('Error:', error);
+    });
+
+    // Send a PUT request to the viewer's route
+    fetch(user_api_route, {
+        headers: {
+            'X-CSRFToken': csrftoken
+        },
+        method: 'PUT',
+        body: JSON.stringify({
+            post_id: item_id
+        })
+    })
+    .then(() => {
+        update_like_count(item, already_liked);
+    })
+
+    // Error handling
+    .catch(error => {
+        console.log('Error:', error);
+    });
+}
+
+
+// Updates an item's like count in the DOM
+function update_like_count(item, already_liked) {
+    var like_count_element = item.querySelector('.post-likecount');
+    var like_count = parseInt(like_count_element.innerHTML);
+    if (already_liked) {
+        like_count -= 1;
+        like_count_element.innerHTML = like_count;
+    }
+    else {
+        like_count += 1;
+        like_count_element.innerHTML = like_count;
+    }
 }
 
 

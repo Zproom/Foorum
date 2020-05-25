@@ -11,7 +11,7 @@ from django import forms
 from django.forms import ModelForm, Textarea
 from django.core.paginator import Paginator
 from django.db.models import Count
-from .models import User, Post, Board, Comment
+from .models import User, Post, Board
 
 
 # Defines a form for creating posts and comments.
@@ -109,29 +109,32 @@ def view_board(request, board_id):
     # If no GET parameter is supplied, set sort to "" (sort by new to old)
     sort = request.GET.get("q", "")
     if sort == "likes_high_low":
-        posts = board.posts.all() \
+        posts = board.posts.filter(parent=None) \
             .annotate(num_likes=Count('like_users')).order_by("-num_likes")
         page_obj = paginate(request, posts)
     elif sort == "likes_low_high":
-        posts = board.posts.all() \
+        posts = board.posts.filter(parent=None) \
             .annotate(num_likes=Count('like_users')).order_by("num_likes")
         page_obj = paginate(request, posts)
     elif sort == "comments_high_low":
-        posts = board.posts.all() \
-            .annotate(num_comments=Count('comments')).order_by('-num_comments')
+        posts = board.posts.filter(parent=None) \
+            .annotate(num_comments=Count('child_posts')).order_by('-num_comments')
         page_obj = paginate(request, posts)
     elif sort == "comments_low_high":
-        posts = board.posts.all() \
-            .annotate(num_comments=Count('comments')).order_by('num_comments')
+        posts = board.posts.filter(parent=None) \
+            .annotate(num_comments=Count('child_posts')).order_by('num_comments')
         page_obj = paginate(request, posts)
     elif sort == "timestamp_new_old":
-        posts = board.posts.all().order_by("-timestamp")
+        posts = board.posts.filter(parent=None) \
+            .order_by("-timestamp")
         page_obj = paginate(request, posts)
     elif sort == "timestamp_old_new":
-        posts = board.posts.all().order_by("timestamp")
+        posts = board.posts.filter(parent=None) \
+            .order_by("timestamp")
         page_obj = paginate(request, posts)
     else:
-        posts = board.posts.all().order_by("-timestamp")
+        posts = board.posts.filter(parent=None) \
+            .order_by("-timestamp")
         page_obj = paginate(request, posts)
 
     # User creates a post
@@ -174,7 +177,7 @@ def view_comments(request, post_id):
         return HttpResponse("Error: Post does not exist.")
 
     # List the comments in reverse chronological order
-    comments = post.comments.all().order_by("-timestamp")
+    comments = post.child_posts.all().order_by("-timestamp")
     return render(request, "forum/comments.html", {
         "post": post,
         "form": NewPostForm(),
@@ -193,7 +196,8 @@ def view_user(request, username):
 
     # List the posts associated with the profile in reverse chronological
     # order and paginate
-    profile_posts = user.posts.all().order_by("-timestamp")
+    profile_posts = user.posts.filter(parent=None) \
+        .order_by("-timestamp")
     page_obj = paginate(request, profile_posts)
 
     # Check if the user is viewing their own profile
@@ -204,7 +208,7 @@ def view_user(request, username):
     # Check if the user is already following this profile and
     # set the button text accordingly
     try:
-        already_following = request.user.following.all() \
+        already_following = request.user.following \
             .filter(username=username).exists()
 
     # Handles the case where a user is not signed in
@@ -255,7 +259,7 @@ def view_user(request, username):
 
 # View the user sees after clicking on the Following link
 def view_following(request):
-    following_posts = Post.objects \
+    following_posts = Post.objects.filter(parent=None) \
         .filter(author__in=request.user.following.all()).order_by("-timestamp")
     page_obj = paginate(request, following_posts)
     return render(request, "forum/following.html", {
@@ -374,53 +378,16 @@ def compose_comment(request, post_id):
         return HttpResponse("Error: Post does not exist.")
 
     # Create a new comment and save it to the database
-    comment = Comment(
+    comment = Post(
         author=request.user,
-        post=post,
+        board=post.board,
+        parent=post,
         content=content,
         image_link=image_link
     )
     comment.save()
 
     return JsonResponse(comment.serialize())
-
-
-# Handles requests to the comment API route
-@login_required
-def comment(request, comment_id):
-
-    # Query for requested comment
-    try:
-        comment = Comment.objects.get(pk=comment_id)
-    except Comment.DoesNotExist:
-        return JsonResponse({"error": "Comment not found."}, status=404)
-
-    # Return comment information
-    if request.method == "GET":
-        return JsonResponse(comment.serialize())
-
-    # Update the comment's content, image link, or like count
-    elif request.method == "PUT":
-        data = json.loads(request.body)
-        if data.get("content") is not None:
-            comment.content = data["content"]
-        if data.get("image_link") is not None:
-            comment.image_link = data["image_link"]
-        if data.get("like") is not None:
-
-            # Check if the viewer has already liked the comment
-            if comment in request.user.comment_likes.all():
-                comment.num_likes -= 1
-            else:
-                comment.num_likes += 1
-        comment.save()
-        return HttpResponse(status=204)
-
-    # Post must be via GET or PUT
-    else:
-        return JsonResponse({
-            "error": "GET or PUT request required."
-        }, status=400)
 
 
 def login_view(request):
