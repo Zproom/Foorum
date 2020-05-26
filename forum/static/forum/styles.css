@@ -62,7 +62,8 @@ body {
     text-decoration: underline;
 }
 
-#post-textarea, .edit-post-textarea {
+#post-textarea, .edit-post-textarea,
+#post-image-link, .edit-post-image-link {
     display: block;
     border: 0.5px solid grey;
     border-radius: 5px;
@@ -75,15 +76,7 @@ body {
 }
 
 #post-image-link, .edit-post-image-link {
-    display: block;
-    border: 0.5px solid grey;
-    border-radius: 5px;
     height: 50px;
-    width: 90%;
-    margin-top: 5px;
-    margin-bottom: 5px;
-    padding: 10px;
-    outline: none;
 }
 
 .board-name {

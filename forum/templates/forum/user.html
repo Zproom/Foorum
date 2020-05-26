@@ -10,7 +10,7 @@
             {% if user.is_authenticated and not own_profile %}
                 <form action="{% url 'view-user' username %}" method="post">
                     {% csrf_token %}
-                    <input id="follow-btn" type="submit" class="btn btn-outline-primary" value="{{ follow_button_text }}"/>
+                    <input id="follow-btn" type="submit" class="btn btn-outline-info" value="{{ follow_button_text }}"/>
                 </form>
             {% endif %}
             <p class="profile-following">{{ following_count_text }}</p>
