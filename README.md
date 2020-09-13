@@ -39,7 +39,7 @@ The **Comment** model stores information about a comment on a post. In particula
 
 ## Templates
 
-Foorum is a multipage application that comprises eight HTML files, listed below.
+Foorum is a multipage application that comprises six HTML files, listed below.
 - layout.html (layout inherited by each template)
 - login.html (login page)
 - register.html (new user registration page) 
