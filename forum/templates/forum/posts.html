@@ -3,33 +3,55 @@
 
 {% block body %}
     <div class="posts-page" data-viewer="{{ request.user.username }}">
-        <h1 class="board-name">{{ board.name }}</h1>
-        <p class="board-description">{{ board.description }}</p>
-        {% if user.is_authenticated %}
-            <div class="post-div">
-                <h4>New Post</h4>
-                <form action="{% url 'view-board' board.id %}" method="post">
-                    {% csrf_token %}
-                    {{ form }}
-                    <input type="submit" class="btn btn-primary"/>
-                </form>
+        {% if following_page %}
+            <h2 class="follow-page-title">Following</h2>
+        {% endif %}
+
+        {% if user_page %}
+            <h2 class="profile-name">{{ username }}'s Profile</h2>
+            <div class="profile-info-div">
+                <h3>Information</h3>
+                <p class="profile-followers">{{ followers_count_text }}</p>
+                {% if user.is_authenticated and not own_profile %}
+                    <form action="{% url 'view-user' username %}" method="post">
+                        {% csrf_token %}
+                        <input id="follow-btn" type="submit" class="btn btn-outline-info" value="{{ follow_button_text }}"/>
+                    </form>
+                {% endif %}
+                <p class="profile-following">{{ following_count_text }}</p>
             </div>
         {% endif %}
-        <div class="btn-group" id="sort-dropdown-div">
-            <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Sort posts by...
-            </button>
-            <div class="dropdown-menu">
-                <a class="dropdown-item" href="{% url 'view-board' board.id %}?q=likes_high_low">Likes: High to Low</a>
-                <a class="dropdown-item" href="{% url 'view-board' board.id %}?q=likes_low_high">Likes: Low to High</a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="{% url 'view-board' board.id %}?q=comments_high_low">Comments: High to Low</a>
-                <a class="dropdown-item" href="{% url 'view-board' board.id %}?q=comments_low_high">Comments: Low to High</a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="{% url 'view-board' board.id %}?q=timestamp_new_old">Timestamp: New to Old</a>
-                <a class="dropdown-item" href="{% url 'view-board' board.id %}?q=timestamp_old_new">Timestamp: Old to New</a>
+
+        {% if board_page %}
+            <h1 class="board-name">{{ board.name }}</h1>
+            <p class="board-description">{{ board.description }}</p>
+            {% if user.is_authenticated %}
+                <div class="post-div">
+                    <h4>New Post</h4>
+                    <form action="{% url 'view-board' board.id %}" method="post">
+                        {% csrf_token %}
+                        {{ form }}
+                        <input type="submit" class="btn btn-primary"/>
+                    </form>
+                </div>
+            {% endif %}
+            <div class="btn-group" id="sort-dropdown-div">
+                <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Sort posts by...
+                </button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="{% url 'view-board' board.id %}?q=likes_high_low">Likes: High to Low</a>
+                    <a class="dropdown-item" href="{% url 'view-board' board.id %}?q=likes_low_high">Likes: Low to High</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="{% url 'view-board' board.id %}?q=comments_high_low">Comments: High to Low</a>
+                    <a class="dropdown-item" href="{% url 'view-board' board.id %}?q=comments_low_high">Comments: Low to High</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="{% url 'view-board' board.id %}?q=timestamp_new_old">Timestamp: New to Old</a>
+                    <a class="dropdown-item" href="{% url 'view-board' board.id %}?q=timestamp_old_new">Timestamp: Old to New</a>
+                </div>
             </div>
-        </div>
+        {% endif %}
+        
         {% for post in page_obj %}
             <div class="post-div" data-post="{{ post.id }}">
                 <h5>
@@ -37,6 +59,13 @@
                         {{ post.author }}
                     </a>
                 </h5>
+                {% if following_page or user_page %}
+                    <p class="post-board-text">
+                        Foorum/ <a href="{% url 'view-board' post.board.id %}" class="post-board-link">
+                            {{ post.board.name }}
+                        </a>
+                    </p>
+                {% endif %}
                 {% if request.user == post.author %}
                     <button type="button" class="btn btn-outline-warning">
                         Edit

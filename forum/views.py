@@ -99,6 +99,10 @@ def index(request):
 # index page
 def view_board(request, board_id):
 
+    # Variable that is used to display the appropriate elements
+    # of the posts.html template
+    board_page = True
+
     # Query for requested board
     try:
         board = Board.objects.get(pk=board_id)
@@ -153,16 +157,18 @@ def view_board(request, board_id):
                 "view-board",
                 args=(board.id,)))
         else:
-            return render(request, "forum/board.html", {
+            return render(request, "forum/posts.html", {
                 "board": board,
                 "form": post,
-                "page_obj": page_obj
+                "page_obj": page_obj,
+                "board_page": board_page
             })
     else:
-        return render(request, "forum/board.html", {
+        return render(request, "forum/posts.html", {
             "board": board,
             "form": NewPostForm(),
-            "page_obj": page_obj
+            "page_obj": page_obj,
+            "board_page": board_page
         })
 
 
@@ -187,6 +193,10 @@ def view_comments(request, post_id):
 
 # View the user sees after clicking on a username in a post
 def view_user(request, username):
+
+    # Variable that is used to display the appropriate elements
+    # of the posts.html template
+    user_page = True
 
     # Query for requested user
     try:
@@ -247,23 +257,29 @@ def view_user(request, username):
     else:
         following_count_text = f"{user.username} follows " \
                                f"{following_count} users."
-    return render(request, "forum/user.html", {
+    return render(request, "forum/posts.html", {
         "username": user.username,
         "followers_count_text": followers_count_text,
         "following_count_text": following_count_text,
         "own_profile": own_profile,
         "follow_button_text": follow_button_text,
-        "page_obj": page_obj
+        "page_obj": page_obj,
+        "user_page": user_page
     })
 
 
 # View the user sees after clicking on the Following link
 def view_following(request):
+
+    # Variable that is used to display the appropriate elements
+    # of the posts.html template
+    following_page = True
     following_posts = Post.objects.filter(parent=None) \
         .filter(author__in=request.user.following.all()).order_by("-timestamp")
     page_obj = paginate(request, following_posts)
-    return render(request, "forum/following.html", {
-        "page_obj": page_obj
+    return render(request, "forum/posts.html", {
+        "page_obj": page_obj,
+        "following_page": following_page
     })
 
 
