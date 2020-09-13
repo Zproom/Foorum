@@ -39,23 +39,17 @@ The **Comment** model stores information about a comment on a post. In particula
 
 ## Templates
 
-Foorum is a multipage application and comprises eight HTML files, listed below.
+Foorum is a multipage application that comprises eight HTML files, listed below.
 - layout.html (layout inherited by each template)
 - login.html (login page)
 - register.html (new user registration page) 
 - index.html
-- board.html
-- user.html
-- following.html
+- posts.html
 - comments.html
 
 **index.html** is the page all users land on when opening Foorum. It lists all of the existing discussion boards as links. Users who have been granted permission by an administrator also see a form for creating new discussion boards below the list of boards.
 
-**board.html** is the page all users see after clicking on a link to a discussion board. The page displays the name and description of the board and a sortable list of posts associated with the board. Signed in users also see a form to create new posts. 
-
-**user.html** is the page all users see after clicking on a user's name in a post or comment. The page displays the user's follower count, following count (number of users they follow), and all of the user's posts in reverse chronological order. Signed in users also have the ability to follow and unfollow the user. 
-
-**following.html** is the page a signed in user sees after clicking on the "Following" link at the top of the screen. The page displays all posts authored by users followed by the signed in user. Users who are not signed in cannot see the link to this page.
+**posts.html** is a page that is used to present listed posts. In particular, this page is displayed when: (1) any user clicks on a link to a discussion board; (2) any user clicks on a username in a post or comment; or (3) a signed in user clicks the "Following" link at the top of the screen (users who are not signed in cannot see the link to this page). The content of the page changes depending on which of the three links is opened. In a discussion board (1), users can see the name and description of the board and a sortable list of posts associated with the board. Signed in users also see a form to create new posts. A profile page (2) shows the user's follower count, following count (number of users they follow), and all of the user's posts in reverse chronological order. Signed in users also have the ability to follow and unfollow the user. The following page (3) displays all posts authored by users followed by the signed in user.
 
 **comments.html** is the page all users see after clicking on the Comments button under a post. The page displays the original post and all of the comments associated with the post in reverse chronological order. Signed in users also see a form to create new comments. 
  
