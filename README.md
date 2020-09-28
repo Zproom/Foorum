@@ -9,6 +9,7 @@ Foorum is a simple web forum that enables users to submit posts on discussion bo
 - Python 3 (used 3.6.9)
 - pip
 - Django ([installation guide](https://docs.djangoproject.com/en/3.0/topics/install/)) 
+- Pillow, for image validation ([site](https://pypi.org/project/Pillow/))
 
 ## How to Use
 
