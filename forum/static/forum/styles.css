@@ -251,3 +251,12 @@ i {
     text-align: center;
     font-family: 'Courier New', Courier, monospace;
 }
+
+#submit-post-comment {
+    display: block;
+    margin-top: 20px;
+}
+
+#image-upload-button {
+    font-size: 13px;
+}

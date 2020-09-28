@@ -60,7 +60,7 @@ The **static** directory contains a JavaScript file and a CSS file.
 - script.js
 - styles.css
 
-**script.js** creates a dynamic user interface for the app. In particular, it lets users create new comments, edit posts and comments, and like posts and comments using the app's API. The app uses JavaScript from Bootstrap and Popper to create a dropdown sort button on each board.  
+**script.js** creates a dynamic user interface for the app. In particular, it lets users create new comments, edit posts and comments, and like posts and comments using the app's API. To create comments and edit comments and top-level posts, the script uses Ajax requests. The app uses JavaScript from Bootstrap and Popper to create a dropdown sort button on each board.  
 
 **styles.css** styles the app's templates and helps make the app mobile-responsive. The app uses Bootstrap and Font Awesome for additional styling (e.g. buttons and the like icon).
 

@@ -48,7 +48,9 @@ class Post(models.Model):
         blank=True,
         related_name='child_posts')
     content = models.CharField(max_length=1000)
-    image_link = models.URLField(max_length=3000, blank=True)
+    
+    # Add field for thumbnail
+    thumb = models.ImageField(blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     # Translate the Post model into JSON format
@@ -57,13 +59,17 @@ class Post(models.Model):
             parent = self.parent.id
         else:
             parent = None
+        if self.thumb:
+            url = self.thumb.url
+        else:
+            url = None
         return {
             "id": self.id,
             "author": self.author.username,
             "board": self.board.name,
             "parent": parent,
             "content": self.content,
-            "image_link": self.image_link,
+            "thumb": url,
             "timestamp": self.timestamp.strftime("%b %-d %Y, %-I:%M %p")
         }
 

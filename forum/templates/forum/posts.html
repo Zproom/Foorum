@@ -28,10 +28,10 @@
             {% if user.is_authenticated %}
                 <div class="post-div">
                     <h4>New Post</h4>
-                    <form action="{% url 'view-board' board.id %}" method="post">
+                    <form action="{% url 'view-board' board.id %}" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         {{ form }}
-                        <input type="submit" class="btn btn-primary"/>
+                        <input type="submit" class="btn btn-primary" id="submit-post-comment"/>
                     </form>
                 </div>
             {% endif %}
@@ -71,11 +71,11 @@
                         Edit
                     </button>
                 {% endif %}
-                {% if post.image_link %}
-                    <img class="post-img" src="{{ post.image_link }}">
+                {% if post.thumb %}
+                    <img class="post-img" src="{{ post.thumb.url }}">
                 {% endif %}
                 <p class="post-content">{{ post.content|urlize }}</p>
-                <p class="post-timestamp">{{ post.timestamp|date:"N j Y, g:i A" }}</p>
+                <p class="post-timestamp">{{ post.timestamp|date:"M j Y, g:i A" }}</p>
                 {% if user.is_authenticated %}
                     <button class="btn" id="like-button">
                         <i class='far fa-thumbs-up' id="like-icon"></i>
@@ -114,5 +114,6 @@
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="{% static 'forum/script.js' %}"></script>
 {% endblock %}

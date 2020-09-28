@@ -17,8 +17,8 @@
                     Edit
                 </button>
             {% endif %}
-            {% if post.image_link %}
-                <img class="post-img" src="{{ post.image_link }}">
+            {% if post.thumb %}
+                <img class="post-img" src="{{ post.thumb.url }}">
             {% endif %}
             <h5 class="post-content">{{ post.content|urlize }}</h5>
             <p class="post-timestamp">{{ post.timestamp|date:"N j Y, g:i A" }}</p>
@@ -40,8 +40,8 @@
                 <h4>New Comment</h4>
                 <form>
                     <textarea id="post-textarea" placeholder="Start typing your comment here..."></textarea>
-                    <textarea id="post-image-link" placeholder="Insert image link (optional)"></textarea>
-                    <button type="button" class="btn btn-info">Submit</button>
+                    <input type="file" name="img" id="image-upload-button">
+                    <button type="button" class="btn btn-info" id="submit-post-comment">Submit</button>
                 </form>
                 <hr>
             {% endif %}
@@ -58,11 +58,11 @@
                             Edit
                         </button>
                     {% endif %}
-                    {% if comment.image_link %}
-                        <img class="post-img" src="{{ comment.image_link }}">
+                    {% if comment.thumb %}
+                        <img class="post-img" src="{{ comment.thumb.url }}">
                     {% endif %}
                     <p class="post-content">{{ comment.content|urlize }}</p>
-                    <p class="post-timestamp">{{ comment.timestamp|date:"N j Y, g:i A" }}</p>
+                    <p class="post-timestamp">{{ comment.timestamp|date:"M j Y, g:i A" }}</p>
                     {% if user.is_authenticated %}
                         <button class="btn" id="like-button">
                             <i class='far fa-thumbs-up' id="like-icon"></i>
@@ -78,5 +78,6 @@
 {% endblock %}
 
 {% block script %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="{% static 'forum/script.js' %}"></script>
 {% endblock %}

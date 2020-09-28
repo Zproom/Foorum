@@ -8,32 +8,34 @@ from django.urls import reverse
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django import forms
-from django.forms import ModelForm, Textarea
+from django.forms import ModelForm, Textarea, ClearableFileInput
 from django.core.paginator import Paginator
 from django.db.models import Count
 from .models import User, Post, Board
+from django.http import HttpResponseBadRequest
+from django.utils.deprecation import MiddlewareMixin
 
 
-# Defines a form for creating posts and comments.
-# Since the post and comment models are so similar,
-# the post form can be repurposed for new comments
+# Defines a form for creating posts. Comments are created 
+# using JavaScript
 class NewPostForm(ModelForm):
     class Meta:
         model = Post
-        fields = ['content', 'image_link']
+        fields = ['content', 'thumb']
         widgets = {
             'content': Textarea(
                 attrs={
                     'id': 'post-textarea',
                     'placeholder': 'Start typing your thoughts here...'}),
-            'image_link': Textarea(
+            'thumb': ClearableFileInput(
                 attrs={
-                    'id': 'post-image-link',
-                    'placeholder': 'Insert image link (optional)'})
+                    'id': 'image-upload-button',
+                }
+            )
         }
         labels = {
             'content': '',
-            'image_link': ''
+            'thumb': ''
         }
 
 
@@ -143,15 +145,15 @@ def view_board(request, board_id):
 
     # User creates a post
     if request.method == "POST":
-        post = NewPostForm(request.POST)
+        post = NewPostForm(request.POST, request.FILES)
 
         # Error handling
         if post.is_valid():
             new_post = Post(
                 author=request.user,
                 board=board,
-                content=post.cleaned_data["content"],
-                image_link=post.cleaned_data["image_link"])
+                content=post.cleaned_data.get("content"),
+                thumb=post.cleaned_data.get("thumb"))
             new_post.save()
             return HttpResponseRedirect(reverse(
                 "view-board",
@@ -306,13 +308,48 @@ def post(request, post_id):
 
     # Update the post's content, image link, or like count
     elif request.method == "PUT":
-        data = json.loads(request.body)
-        if data.get("content") is not None:
-            post.content = data["content"]
-        if data.get("image_link") is not None:
-            post.image_link = data["image_link"]
+
+        # The below code is used to update image files with PUT requests (this is
+        # not straightforward with Django). Source: 
+        # https://dzone.com/articles/parsing-unsupported-requests-put-delete-etc-in-dja
+        # Bug fix: if _load_post_and_files has already been called, for
+        # example by middleware accessing request.POST, the below code to
+        # pretend the request is a POST instead of a PUT will be too late
+        # to make a difference. Also calling _load_post_and_files will result
+        # in the following exception:
+        # AttributeError: You cannot set the upload handlers after the upload has been processed.
+        # The fix is to check for the presence of the _post field which is set
+        # the first time _load_post_and_files is called (both by wsgi.py and
+        # modpython.py). If it's set, the request has to be 'reset' to redo
+        # the query value parsing in POST mode.
+        if hasattr(request, '_post'):
+            del request._post
+            del request._files
+        try:
+            request.method = "POST"
+            request._load_post_and_files()
+            request.method = "PUT"
+        except AttributeError:
+            request.META['REQUEST_METHOD'] = 'POST'
+            request._load_post_and_files()
+            request.META['REQUEST_METHOD'] = 'PUT'
+        request.PUT = request.POST
+        if request.is_ajax():
+            content = request.PUT['content']
+            image = request.FILES.get('img_file')
+
+        # Check the content length
+        if not content or len(content) > 1000:
+            return JsonResponse({
+                "error": ("Your post content must not be empty"
+                          "and cannot exceed 1000 characters.")
+            }, status=400)
+
+        # Update the post or comment fields
+        post.content = content
+        post.thumb = image
         post.save()
-        return HttpResponse(status=204)
+        return JsonResponse(post.serialize())
 
     # Post must be via GET or PUT
     else:
@@ -372,19 +409,15 @@ def compose_comment(request, post_id):
     # Composing a new comment must be via POST
     if request.method != "POST":
         return JsonResponse({"error": "POST request required."}, status=400)
+    if request.is_ajax():
+        content = request.POST['content']
+        image = request.FILES.get('img_file')
 
-    # Check the content length and image link length
-    data = json.loads(request.body)
-    content = data.get("content", "")
-    image_link = data.get("image_link", "")
+    # Check the content length
     if not content or len(content) > 1000:
         return JsonResponse({
             "error": ("Your post content must not be empty"
                       "and cannot exceed 1000 characters.")
-        }, status=400)
-    if len(image_link) > 3000:
-        return JsonResponse({
-            "error": "Your image URL cannot exceed 3000 characters."
         }, status=400)
 
     # Query for requested post
@@ -399,10 +432,9 @@ def compose_comment(request, post_id):
         board=post.board,
         parent=post,
         content=content,
-        image_link=image_link
+        thumb=image
     )
     comment.save()
-
     return JsonResponse(comment.serialize())
 
 

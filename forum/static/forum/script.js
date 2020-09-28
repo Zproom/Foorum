@@ -51,30 +51,19 @@ document.addEventListener('click', event => {
 // Updates the DOM when the user clicks the Edit button
 function edit_item(item) {
 
-    // Store the item (post or comment) content and declare 
-    // a variable to store the image link
+    // Store the item (post or comment) content
     const item_content = item.querySelector('.post-content');
-    var item_image_link;
-
-    // If the item has an image, retrieve the image link
-    try {
-        item_image_link = item.querySelector('.post-img').src;
-    }
-
-    // Otherwise, set the image link equal to an empty string
-    catch {
-        item_image_link = '';
-    }
     const timestamp = item.querySelector('.post-timestamp');
 
     // Create a new HTML textarea that is pre-populated with
-    // the item content and a pre-populated image link field
+    // the item content and an image upload button
     const edit_text_area = document.createElement('textarea');
     edit_text_area.className = 'edit-post-textarea';
     edit_text_area.innerHTML = item_content.textContent;
-    const image_link_field = document.createElement('textarea');
-    image_link_field.className = 'edit-post-image-link';
-    image_link_field.innerHTML = item_image_link;
+    const image_link_field = document.createElement('input');
+    image_link_field.type = 'file';
+    image_link_field.name = 'img';
+    image_link_field.id = 'image-upload-button';
 
     // Replace the item content with the pre-populated textarea 
     item.replaceChild(edit_text_area, item_content);
@@ -83,6 +72,7 @@ function edit_item(item) {
     // Create a Save button for saving edits
     const save_button = document.createElement('button');
     save_button.className = 'btn btn-outline-primary';
+    save_button.id = 'submit-post-comment';
     save_button.innerHTML = 'Save Edits';
     item.insertBefore(save_button, timestamp);
 
@@ -95,7 +85,30 @@ function edit_item(item) {
 // comments) in the database and updates the DOM
 function save_edits(item) {
     
-    // Store the item ID, updated item content, and updated image link
+    // Remove any existing error messages
+    if (item.querySelector('.comment-error-message')) {
+        item.querySelector('.comment-error-message').remove();
+    }
+    
+    // Check the content length to make sure it's less than
+    // 1000 characters
+    const new_content = item.querySelector('.edit-post-textarea').value;
+    const timestamp = item.querySelector('.post-timestamp');
+    var error_message = document.createElement('strong');
+    error_message.className = 'comment-error-message';
+
+    // Check that the comment content is not an empty string
+    // and that the length of the content does not exceed 1000
+    // characters
+    if (!new_content || new_content.length > 1000) {
+        
+        // Display an error message in the DOM
+        error_message.innerHTML = 'Error! Your post content must not be empty and cannot exceed 1000 characters.'
+        item.insertBefore(error_message, timestamp);
+        return 
+    }
+
+    // Store the item (comment or post ID)
     var item_id;
     if (item.className === 'post-div') {
         item_id = parseInt(item.dataset["post"]);
@@ -103,87 +116,99 @@ function save_edits(item) {
     else if (item.className === 'comment-div') {
         item_id = parseInt(item.dataset["comment"]);
     }
-    const new_content = item.querySelector('.edit-post-textarea').value;
-    const img_link = item.querySelector('.edit-post-image-link').value;
 
-    // Send a PUT request to the item ID's route
-    fetch(`/forum/${item_id}`, {
+    // Declare a variable (form_data) to store the 
+    // content the user has entered in the form. The form
+    // should store the text in the text area and the image
+    // file if it exists. The variable uploaded_new_img indicates 
+    // whether the user supplied a new image (used later in the function)
+    var form_data = new FormData();
+    form_data.append('content', new_content);
+    form_data.append('img_file', item.querySelector('#image-upload-button').files[0]);
+    var uploaded_new_img;
+    if (item.querySelector('#image-upload-button').value) {
+        uploaded_new_img = true;
+    }
+    else {
+        uploaded_new_img = false;
+    }
+
+    // Use Ajax to make a PUT request that includes the content and image file
+    $.ajax({ 
+        url: `/forum/${item_id}`,  
+        type: 'PUT',
         headers: {
-            'X-CSRFToken': csrftoken
+            "X-CSRFToken": csrftoken
         },
-        method: 'PUT',
-        body: JSON.stringify({
-            content: new_content,
-            image_link: img_link
-        })
-    })
-    .then(() => {
+        data: form_data,
+        processData: false,
+        contentType: false,
+        success: function(data) { 
 
-        // Update the DOM. First, replace the textarea with
-        // a paragraph element
-        const item_content_paragraph = document.createElement('p');
-        item_content_paragraph.className = 'post-content';
-        item_content_paragraph.innerHTML = new_content;
-        item.replaceChild(item_content_paragraph, item.querySelector('.edit-post-textarea'));
+            // Update the DOM. First, replace the textarea with
+            // a paragraph element
+            const item_content_paragraph = document.createElement('p');
+            item_content_paragraph.className = 'post-content';
+            item_content_paragraph.innerHTML = data.content;
+            item.replaceChild(item_content_paragraph, item.querySelector('.edit-post-textarea'));
         
-        // Remove the image link field and Save button
-        item.removeChild(item.querySelector('.edit-post-image-link'));
-        item.removeChild(item.querySelector('.btn-outline-primary'));
+            // Remove the image upload button and Save button
+            item.removeChild(item.querySelector('#image-upload-button'));
+            item.removeChild(item.querySelector('.btn-outline-primary'));
 
-        // Check if there is an image and create an Edit button
-        // to be added later
-        var item_image = item.querySelector('.post-img');
-        const edit_button = document.createElement('button');
-        edit_button.className = 'btn btn-outline-warning';
-        edit_button.innerHTML = 'Edit';
+            // Check if there is an image and create an Edit button
+            // to be added later
+            var item_image = item.querySelector('.post-img');
+            const edit_button = document.createElement('button');
+            edit_button.className = 'btn btn-outline-warning';
+            edit_button.innerHTML = 'Edit';
         
-        // The item already contains an image
-        if (item_image) {
+            // The item already contains an image
+            if (item_image) {
 
-            // If the user supplies an image link,
-            // update the image element's src field and 
-            // add an Edit button immediately before 
-            // the image element
-            if (img_link) {
-                item_image.src = img_link;
-                item.insertBefore(edit_button, item_image);
+                // If the user uploaded an image,
+                // update the image element's src field and 
+                // add an Edit button immediately before 
+                // the image element
+                if (uploaded_new_img) {
+                    item_image.src = data.thumb;
+                    item.insertBefore(edit_button, item_image);
+                } 
+
+                // If the user did not upload a new image, 
+                // delete the image element and add an Edit 
+                // button immediately before the content element 
+                else {
+                    item.removeChild(item_image);
+                    item.insertBefore(edit_button, item_content_paragraph);
+                }
             } 
 
-            // If the user supplies no image link, 
-            // delete the image element and add an Edit 
-            // button immediately before the content element 
+            // The item does not contain an image
             else {
-                item.removeChild(item_image);
-                item.insertBefore(edit_button, item_content_paragraph);
-            }
-        } 
-
-        // The item does not contain an image
-        else {
             
-            // If the user supplies an image link,
-            // create a new image element and add
-            // an Edit button immediately before it
-            if (img_link) {
-                const new_item_image = document.createElement('img');
-                new_item_image.className = 'post-img';
-                new_item_image.src = img_link;
-                item.insertBefore(new_item_image, item_content_paragraph);
-                item.insertBefore(edit_button, new_item_image);
-            } 
+                // If the user uploaded an image,
+                // create a new image element and add
+                // an Edit button immediately before it
+                if (uploaded_new_img) {
+                    const new_item_image = document.createElement('img');
+                    new_item_image.className = 'post-img';
+                    new_item_image.src = data.thumb;
+                    item.insertBefore(new_item_image, item_content_paragraph);
+                    item.insertBefore(edit_button, new_item_image);
+                } 
 
-            // If the user supplies no image link, 
-            // add an Edit button immediately before
-            // the content element
-            else {
-                item.insertBefore(edit_button, item_content_paragraph);
-            }
+                // If the user did not upload a new image, 
+                // add an Edit button immediately before
+                // the content element
+                else {
+                    item.insertBefore(edit_button, item_content_paragraph);
+                }
+            }  
+        },
+        error: function(error) {
+            console.log('Error:', error);
         }
-    })
-
-    // Error handling
-    .catch(error => {
-        console.log('Error:', error);
     });
 }
 
@@ -197,15 +222,12 @@ function create_comment() {
         document.querySelector('.comment-error-message').remove();
     }
     
-    // Check the content length and image link length. First,
-    // store the content and image link and initialize some
-    // variables that appear a few times
-    const content = document.querySelector('#post-textarea').value; 
-    const image_link = document.querySelector('#post-image-link').value;
+    // Check the content length. First, store the content and 
+    // image and initialize some variables that appear a few times
+    const content = document.querySelector('#post-textarea').value;     
     var error_message = document.createElement('strong');
     error_message.className = 'comment-error-message';
     const form = document.querySelector('form');
-    const viewer_name = document.querySelector('.posts-page').dataset["viewer"];
 
     // Check that the comment content is not an empty string
     // and that the length of the content does not exceed 1000
@@ -218,72 +240,60 @@ function create_comment() {
         return 
     }
 
-    // Check that the image URL length does not exceed 3000 
-    // characters
-    if (image_link.length > 3000) {
-        
-        // Display an error message in the DOM
-        error_message.innerHTML = 'Error! Your image URL cannot exceed 3000 characters.'
-        form.appendChild(error_message);
-        return 
-    }
-
     // Store the post ID
     const post_id = document.querySelector('.post-div').dataset["post"];
 
-    // Send a POST request to the comment compose route
-    fetch(`/forum/comment/compose/${post_id}`, {
-        headers: {
-            'X-CSRFToken': csrftoken
+    // Store the form data in a FormData object
+    var form_data = new FormData();
+    form_data.append('content', content);
+    form_data.append('img_file', document.querySelector('#image-upload-button').files[0]);
+    form_data.append('csrfmiddlewaretoken', csrftoken)
+
+    // Use Ajax to make a POST request that includes the content and image file
+    $.ajax({ 
+        url: `/forum/comment/compose/${post_id}`,  
+        type: 'POST',
+        data: form_data,
+        processData: false,
+        contentType: false,
+        success: function(data) { 
+
+            // Update the DOM. First clear the form text fields
+            document.querySelector('#post-textarea').value = '';
+            document.querySelector('#image-upload-button').value = '';
+
+            // Increase the comment number displayed in the Comments button
+            var comment_button = document.querySelector('#comment-button');
+            var comment_number = parseInt(comment_button.innerText.slice(10));
+            comment_number += 1;
+            comment_button.innerHTML = `Comments (${comment_number})`;
+
+            // Add a new comment element to the DOM
+            var parent_element = document.querySelector('.all-comments-div');
+            var new_comment = document.createElement('div');
+            new_comment.className = 'comment-div';
+            new_comment.setAttribute('data-comment', data.id);
+            new_comment.innerHTML = `<h5><a href="${data.author}" class="post-user">${data.author}</a></h5>`;
+            new_comment.innerHTML += `<button type="button" class="btn btn-outline-warning">Edit</button>`;
+            if (data.thumb) {
+                new_comment.innerHTML += `<img class="post-img" src=${data.thumb}>`;
+            }
+            new_comment.innerHTML += `<p class="post-content">${data.content}</p>`;
+            new_comment.innerHTML += `<p class="post-timestamp">${data.timestamp}</p>`;
+            new_comment.innerHTML += `<button class="btn" id="like-button"><i class='far fa-thumbs-up' id="like-icon"></i></button>`;
+
+            // Setting the margin of the like count does not work without specifying it 
+            // in JavaScript. Added a style attribute here to fix this issue
+            new_comment.innerHTML += `<p class="post-likecount" style="margin-left: 6.5px">0</p>`;
+            new_comment.innerHTML += `<hr>`;
+            parent_element.prepend(new_comment);
         },
-        method: 'POST',
-        body: JSON.stringify({
-            content: content,
-            image_link: image_link
-        })
-    })
-
-    // Convert response to JSON data 
-    .then(response => response.json())
-    .then(comment => {
-
-        // Update the DOM. First clear the form text fields
-        document.querySelector('#post-textarea').value = '';
-        document.querySelector('#post-image-link').value = '';
-
-        // Increase the comment number displayed in the Comments button
-        var comment_button = document.querySelector('#comment-button');
-        var comment_number = parseInt(comment_button.innerText.slice(10));
-        comment_number += 1;
-        comment_button.innerHTML = `Comments (${comment_number})`;
-
-        // Add a new comment element to the DOM
-        var parent_element = document.querySelector('.all-comments-div');
-        var new_comment = document.createElement('div');
-        new_comment.className = 'comment-div';
-        new_comment.setAttribute('data-comment', comment.id);
-        new_comment.innerHTML = `<h5><a href="${comment.author}" class="post-user">${comment.author}</a></h5>`;
-        new_comment.innerHTML += `<button type="button" class="btn btn-outline-warning">Edit</button>`;
-        if (comment.image_link) {
-            new_comment.innerHTML += `<img class="post-img" src=${comment.image_link}>`;
+        error: function(error) {
+            console.log('Error:', error);
         }
-        new_comment.innerHTML += `<p class="post-content">${comment.content}</p>`;
-        new_comment.innerHTML += `<p class="post-timestamp">${comment.timestamp}</p>`;
-        new_comment.innerHTML += `<button class="btn" id="like-button"><i class='far fa-thumbs-up' id="like-icon"></i></button>`;
-
-        // Setting the margin of the like count does not work without specifying it 
-        // in JavaScript. Added a style attribute here to fix this issue
-        new_comment.innerHTML += `<p class="post-likecount" style="margin-left: 6.5px">0</p>`;
-        new_comment.innerHTML += `<hr>`;
-        parent_element.prepend(new_comment);
-    })
-
-    // Error handling
-    .catch(error => {
-        console.log('Error:', error);
     });
 }
-
+    
 
 // Updates a user's likes and updates the DOM when 
 // the user likes a post or comment   
