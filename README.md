@@ -65,6 +65,5 @@ The **static** directory contains a JavaScript file and a CSS file.
 
 **styles.css** styles the app's templates and helps make the app mobile-responsive. The app uses Bootstrap and Font Awesome for additional styling (e.g. buttons and the like icon).
 
-## Additional Information
 
-I was able to incorporate most of the desired features in this project, with the exception of a notification system (best outcome). I was also hoping to embed YouTube videos in posts and comments, but more essential features took precedence. I also encountered a minor issue when editing posts and comments. If a user edits a post or comment that includes a link in the content, the link will display as normal text (not clickable) when the user saves their edits using the API. Since URLs in the post content are converted to clickable links using Django's urlize filter, the user must reload the page in order for the URL text to become a link. This isn't a huge issue, but it is still annoying. I hope to continue working on Foorum and resolve these issues soon.
+
