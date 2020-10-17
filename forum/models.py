@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from embed_video.fields import EmbedVideoField
 
 
 # Create a User model with fields for the users the user
@@ -49,8 +50,9 @@ class Post(models.Model):
         related_name='child_posts')
     content = models.CharField(max_length=1000)
     
-    # Add field for thumbnail
+    # Add field for thumbnail and video
     thumb = models.ImageField(blank=True)
+    video = EmbedVideoField(blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     # Translate the Post model into JSON format
@@ -70,6 +72,7 @@ class Post(models.Model):
             "parent": parent,
             "content": self.content,
             "thumb": url,
+            "video": self.video,
             "timestamp": self.timestamp.strftime("%b %-d %Y, %-I:%M %p")
         }
 

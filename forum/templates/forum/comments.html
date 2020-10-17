@@ -1,5 +1,6 @@
 {% extends "forum/layout.html" %}
 {% load static %}
+{% load embed_video_tags %}
 
 {% block body %}
     <div class="posts-page" data-viewer="{{ request.user.username }}">
@@ -20,6 +21,11 @@
             {% if post.thumb %}
                 <img class="post-img" src="{{ post.thumb.url }}">
             {% endif %}
+            {% if post.video %}
+                <div class='video-embedded'>
+                    {% video post.video 'tiny' %}
+                </div>
+            {% endif %}
             <h5 class="post-content">{{ post.content|urlize }}</h5>
             <p class="post-timestamp">{{ post.timestamp|date:"N j Y, g:i A" }}</p>
             {% if user.is_authenticated %}
@@ -31,6 +37,8 @@
                     Comments ({{ post.child_posts.count }})
                 </a>
             {% endif %}
+        </div>
+        <div class="post-div">   
             <hr>
             <div class="comments-header">
                 <h3 class="comments-header-text">All Comments</h3>
@@ -40,39 +48,44 @@
                 <h4>New Comment</h4>
                 <form>
                     <textarea id="post-textarea" placeholder="Start typing your comment here..."></textarea>
-                    <input type="file" name="img" id="image-upload-button">
+                    <label for="img">Attach an Image (Optional):</label>
+                    <input type="file" name="img" id="image-upload-button" style="margin-left:3px">
+                    <textarea id="post-textarea-small" placeholder="Add a link to a YouTube video or SoundCloud song (optional). You will need to refresh the page to view the updated media."></textarea>
                     <button type="button" class="btn btn-info" id="submit-post-comment">Submit</button>
                 </form>
                 <hr>
             {% endif %}
-            <div class="all-comments-div">
-                {% for comment in comments %}
-                <div class="comment-div" data-comment="{{ comment.id }}">
-                    <h5>
-                        <a href="{% url 'view-user' comment.author %}" class="post-user">
-                            {{ comment.author }}
-                        </a>
-                    </h5>
-                    {% if request.user == comment.author %}
-                        <button type="button" class="btn btn-outline-warning">
-                            Edit
-                        </button>
-                    {% endif %}
-                    {% if comment.thumb %}
-                        <img class="post-img" src="{{ comment.thumb.url }}">
-                    {% endif %}
-                    <p class="post-content">{{ comment.content|urlize }}</p>
-                    <p class="post-timestamp">{{ comment.timestamp|date:"M j Y, g:i A" }}</p>
-                    {% if user.is_authenticated %}
-                        <button class="btn" id="like-button">
-                            <i class='far fa-thumbs-up' id="like-icon"></i>
-                        </button>
-                        <p class="post-likecount">{{ comment.like_users.count }}</p>
-                    {% endif %}
-                    <hr>
-                </div>
-            {% endfor %}
+            {% for comment in comments %}
+            <div class="comment-div" data-comment="{{ comment.id }}">
+                <h5>
+                    <a href="{% url 'view-user' comment.author %}" class="post-user">
+                        {{ comment.author }}
+                    </a>
+                </h5>
+                {% if request.user == comment.author %}
+                    <button type="button" class="btn btn-outline-warning">
+                        Edit
+                    </button>
+                {% endif %}
+                {% if comment.thumb %}
+                    <img class="post-img" src="{{ comment.thumb.url }}">
+                {% endif %}
+                {% if comment.video %}
+                    <div class='video-embedded'>
+                        {% video comment.video 'tiny' %}
+                    </div>
+                {% endif %}
+                <p class="post-content">{{ comment.content|urlize }}</p>
+                <p class="post-timestamp">{{ comment.timestamp|date:"M j Y, g:i A" }}</p>
+                {% if user.is_authenticated %}
+                    <button class="btn" id="like-button">
+                        <i class='far fa-thumbs-up' id="like-icon"></i>
+                    </button>
+                    <p class="post-likecount">{{ comment.like_users.count }}</p>
+                {% endif %}
+                <hr>
             </div>
+            {% endfor %}
         </div>
     </div>
 {% endblock %}

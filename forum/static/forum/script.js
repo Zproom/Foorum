@@ -60,24 +60,67 @@ function edit_item(item) {
     const edit_text_area = document.createElement('textarea');
     edit_text_area.className = 'edit-post-textarea';
     edit_text_area.innerHTML = item_content.textContent;
+    const img_label = document.createElement('label');
+    img_label.for = 'img';
+    img_label.innerHTML = 'Attach an Image (Optional):';
     const image_link_field = document.createElement('input');
     image_link_field.type = 'file';
     image_link_field.name = 'img';
     image_link_field.id = 'image-upload-button';
+    image_link_field.style = 'margin-left:7px';
 
-    // Replace the item content with the pre-populated textarea 
-    item.replaceChild(edit_text_area, item_content);
-    item.insertBefore(image_link_field, timestamp);
+    // Store the item ID (comment or post ID)
+    var item_id;
+    if (item.className === 'post-div') {
+        item_id = parseInt(item.dataset["post"]);
+    }
+    else if (item.className === 'comment-div') {
+        item_id = parseInt(item.dataset["comment"]);
+    }
 
-    // Create a Save button for saving edits
-    const save_button = document.createElement('button');
-    save_button.className = 'btn btn-outline-primary';
-    save_button.id = 'submit-post-comment';
-    save_button.innerHTML = 'Save Edits';
-    item.insertBefore(save_button, timestamp);
+    // Make a GET request to the item's route to retrieve
+    // the item's embedded media link. A GET request is required
+    // here (instead of extracting the link from the iframe) because
+    // the link in the iframe is changed after the original post is made,
+    // creating problems when editing SoundCloud songs
+    var item_video_link;
+    const item_api_route = `/forum/${item_id}`;
+    fetch(item_api_route)
 
-    // Remove the Edit button
-    item.removeChild(item.querySelector('.btn-outline-warning'));
+    // Convert response to JSON data
+    .then(response => response.json())
+
+    // Store the embedded link
+    .then(data => {
+        item_video_link = data.video;
+        const video_link_field = document.createElement('textarea');
+        video_link_field.id = 'post-textarea-small';
+        video_link_field.placeholder = 'Add a link to a YouTube video or SoundCloud song (optional). \
+                                        You will need to refresh the page to view the updated media.';
+        video_link_field.innerHTML = item_video_link;
+
+        // Replace the item content with the pre-populated textarea and add
+        // other fields
+        item.replaceChild(edit_text_area, item_content);
+        item.insertBefore(img_label, timestamp);
+        item.insertBefore(image_link_field, timestamp);
+        item.insertBefore(video_link_field, timestamp);
+
+        // Create a Save button for saving edits
+        const save_button = document.createElement('button');
+        save_button.className = 'btn btn-outline-primary';
+        save_button.id = 'submit-post-comment';
+        save_button.innerHTML = 'Save Edits';
+        item.insertBefore(save_button, timestamp);
+
+        // Remove the Edit button
+        item.removeChild(item.querySelector('.btn-outline-warning'));
+    })
+
+    // Error handling
+    .catch(error => {
+        console.log('Error:', error);
+    });
 }
 
 
@@ -90,8 +133,8 @@ function save_edits(item) {
         item.querySelector('.comment-error-message').remove();
     }
     
-    // Check the content length to make sure it's less than
-    // 1000 characters
+    // Initialize variables
+    const item_video_upload = item.querySelector('#post-textarea-small').value;
     const new_content = item.querySelector('.edit-post-textarea').value;
     const timestamp = item.querySelector('.post-timestamp');
     var error_message = document.createElement('strong');
@@ -108,7 +151,7 @@ function save_edits(item) {
         return 
     }
 
-    // Store the item (comment or post ID)
+    // Store the item ID (comment or post ID)
     var item_id;
     if (item.className === 'post-div') {
         item_id = parseInt(item.dataset["post"]);
@@ -120,11 +163,13 @@ function save_edits(item) {
     // Declare a variable (form_data) to store the 
     // content the user has entered in the form. The form
     // should store the text in the text area and the image
-    // file if it exists. The variable uploaded_new_img indicates 
-    // whether the user supplied a new image (used later in the function)
+    // and video files if they exist
     var form_data = new FormData();
     form_data.append('content', new_content);
     form_data.append('img_file', item.querySelector('#image-upload-button').files[0]);
+    form_data.append('video_link', item_video_upload);
+    
+    // Create a boolean variable that indicates whether the user uploaded a new image  
     var uploaded_new_img;
     if (item.querySelector('#image-upload-button').value) {
         uploaded_new_img = true;
@@ -133,7 +178,7 @@ function save_edits(item) {
         uploaded_new_img = false;
     }
 
-    // Use Ajax to make a PUT request that includes the content and image file
+    // Use Ajax to make a PUT request that includes the content, image file, and video link
     $.ajax({ 
         url: `/forum/${item_id}`,  
         type: 'PUT',
@@ -146,19 +191,23 @@ function save_edits(item) {
         success: function(data) { 
 
             // Update the DOM. First, replace the textarea with
-            // a paragraph element
+            // a paragraph element. NOTE: The video won't reflect
+            // any updates until the page is refreshed
             const item_content_paragraph = document.createElement('p');
             item_content_paragraph.className = 'post-content';
             item_content_paragraph.innerHTML = data.content;
             item.replaceChild(item_content_paragraph, item.querySelector('.edit-post-textarea'));
         
-            // Remove the image upload button and Save button
+            // Remove the image upload button, video label, video field, and Save button
             item.removeChild(item.querySelector('#image-upload-button'));
+            item.removeChild(item.querySelector('label'));
+            item.removeChild(item.querySelector('#post-textarea-small'));
             item.removeChild(item.querySelector('.btn-outline-primary'));
 
-            // Check if there is an image and create an Edit button
+            // Check if the post already has an image and video and create an Edit button
             // to be added later
             var item_image = item.querySelector('.post-img');
+            const item_video = item.querySelector('.video-embedded');
             const edit_button = document.createElement('button');
             edit_button.className = 'btn btn-outline-warning';
             edit_button.innerHTML = 'Edit';
@@ -167,20 +216,29 @@ function save_edits(item) {
             if (item_image) {
 
                 // If the user uploaded an image,
-                // update the image element's src field and 
-                // add an Edit button immediately before 
-                // the image element
+                // update the image element's src field
                 if (uploaded_new_img) {
                     item_image.src = data.thumb;
+
+                    // Add an Edit button immediately before the image
                     item.insertBefore(edit_button, item_image);
                 } 
 
                 // If the user did not upload a new image, 
-                // delete the image element and add an Edit 
-                // button immediately before the content element 
+                // delete the image element
                 else {
                     item.removeChild(item_image);
-                    item.insertBefore(edit_button, item_content_paragraph);
+
+                    // If the item already contains a video, add an Edit button
+                    // immediately before the video. Otherwise, add the 
+                    // button immediately before the text. Recall: The user
+                    // must refresh the page to view updates to YouTube/SoundCloud media
+                    if (item_video) {
+                        item.insertBefore(edit_button, item_video);
+                    }
+                    else {
+                        item.insertBefore(edit_button, item_content_paragraph);
+                    }
                 }
             } 
 
@@ -188,23 +246,42 @@ function save_edits(item) {
             else {
             
                 // If the user uploaded an image,
-                // create a new image element and add
-                // an Edit button immediately before it
+                // create a new image element
                 if (uploaded_new_img) {
                     const new_item_image = document.createElement('img');
                     new_item_image.className = 'post-img';
                     new_item_image.src = data.thumb;
-                    item.insertBefore(new_item_image, item_content_paragraph);
-                    item.insertBefore(edit_button, new_item_image);
+
+                    // If the item already contains a video, add the image immediately 
+                    // before the video. Then, add an Edit button
+                    // immediately before the image. Otherwise, add the 
+                    // image immediately before the text and the Edit button before
+                    // the image. Recall: The user must refresh the page to view updates 
+                    // to YouTube/SoundCloud media
+                    if (item_video) {
+                        item.insertBefore(new_item_image, item_video);
+                        item.insertBefore(edit_button, new_item_image);
+                    }
+                    else {
+                        item.insertBefore(new_item_image, item_content_paragraph);
+                        item.insertBefore(edit_button, new_item_image);
+                    }
                 } 
 
-                // If the user did not upload a new image, 
-                // add an Edit button immediately before
-                // the content element
+                // The user did not upload a new image
                 else {
-                    item.insertBefore(edit_button, item_content_paragraph);
+
+                    // If the item already contains a video, add the Edit button immediately 
+                    // before the video. Otherwise, add the Edit button immediately
+                    // before the text. 
+                    if (item_video) {
+                        item.insertBefore(edit_button, item_video);
+                    }
+                    else {
+                        item.insertBefore(edit_button, item_content_paragraph);
+                    }
                 }
-            }  
+            }
         },
         error: function(error) {
             console.log('Error:', error);
@@ -222,8 +299,8 @@ function create_comment() {
         document.querySelector('.comment-error-message').remove();
     }
     
-    // Check the content length. First, store the content and 
-    // image and initialize some variables that appear a few times
+    // Initialize variables
+    const item_video_upload = document.querySelector('#post-textarea-small').value;
     const content = document.querySelector('#post-textarea').value;     
     var error_message = document.createElement('strong');
     error_message.className = 'comment-error-message';
@@ -247,6 +324,7 @@ function create_comment() {
     var form_data = new FormData();
     form_data.append('content', content);
     form_data.append('img_file', document.querySelector('#image-upload-button').files[0]);
+    form_data.append('video_link', item_video_upload);
     form_data.append('csrfmiddlewaretoken', csrftoken)
 
     // Use Ajax to make a POST request that includes the content and image file
@@ -258,7 +336,10 @@ function create_comment() {
         contentType: false,
         success: function(data) { 
 
-            // Update the DOM. First clear the form text fields
+            // Update the DOM. First clear the form text fields. 
+            // Recall: The user must refresh the page to view updates 
+            // to YouTube/SoundCloud media, so the comment created below
+            // does not contain any embedded content
             document.querySelector('#post-textarea').value = '';
             document.querySelector('#image-upload-button').value = '';
 
@@ -269,7 +350,7 @@ function create_comment() {
             comment_button.innerHTML = `Comments (${comment_number})`;
 
             // Add a new comment element to the DOM
-            var parent_element = document.querySelector('.all-comments-div');
+            var parent_element = document.querySelectorAll('.post-div')[1];
             var new_comment = document.createElement('div');
             new_comment.className = 'comment-div';
             new_comment.setAttribute('data-comment', data.id);
@@ -286,7 +367,7 @@ function create_comment() {
             // in JavaScript. Added a style attribute here to fix this issue
             new_comment.innerHTML += `<p class="post-likecount" style="margin-left: 6.5px">0</p>`;
             new_comment.innerHTML += `<hr>`;
-            parent_element.prepend(new_comment);
+            parent_element.insertBefore(new_comment, parent_element.children[6]);
         },
         error: function(error) {
             console.log('Error:', error);

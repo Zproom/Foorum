@@ -1,5 +1,6 @@
 {% extends "forum/layout.html" %}
 {% load static %}
+{% load embed_video_tags %}
 
 {% block body %}
     <div class="posts-page" data-viewer="{{ request.user.username }}">
@@ -73,6 +74,11 @@
                 {% endif %}
                 {% if post.thumb %}
                     <img class="post-img" src="{{ post.thumb.url }}">
+                {% endif %}
+                {% if post.video %}
+                    <div class='video-embedded'>
+                        {% video post.video 'tiny' %}
+                    </div>
                 {% endif %}
                 <p class="post-content">{{ post.content|urlize }}</p>
                 <p class="post-timestamp">{{ post.timestamp|date:"M j Y, g:i A" }}</p>

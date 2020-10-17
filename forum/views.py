@@ -21,21 +21,27 @@ from django.utils.deprecation import MiddlewareMixin
 class NewPostForm(ModelForm):
     class Meta:
         model = Post
-        fields = ['content', 'thumb']
+        fields = ['content', 'thumb', 'video']
         widgets = {
             'content': Textarea(
                 attrs={
                     'id': 'post-textarea',
-                    'placeholder': 'Start typing your thoughts here...'}),
+                    'placeholder': 'Start typing your thoughts here...'
+                }),
             'thumb': ClearableFileInput(
                 attrs={
-                    'id': 'image-upload-button',
-                }
-            )
+                    'id': 'image-upload-button'
+                }),
+            'video': Textarea(
+                attrs={
+                    'id': 'post-textarea-small',
+                    'placeholder': 'Add a link to a YouTube video or SoundCloud song (optional)...'
+                })
         }
         labels = {
             'content': '',
-            'thumb': ''
+            'thumb': 'Attach an Image (Optional)',
+            'video': ''
         }
 
 
@@ -47,12 +53,14 @@ class NewBoardForm(ModelForm):
         widgets = {
             'name': Textarea(
                 attrs={
-                    'id': 'post-image-link',
-                    'placeholder': 'Enter the name of your board.'}),
+                    'id': 'post-textarea-small',
+                    'placeholder': 'Enter the name of your board.'
+                }),
             'description': Textarea(
                 attrs={
                     'id': 'post-textarea',
-                    'placeholder': 'Enter a description for your board.'})
+                    'placeholder': 'Enter a description for your board.'
+                })
         }
         labels = {
             'name': '',
@@ -153,7 +161,8 @@ def view_board(request, board_id):
                 author=request.user,
                 board=board,
                 content=post.cleaned_data.get("content"),
-                thumb=post.cleaned_data.get("thumb"))
+                thumb=post.cleaned_data.get("thumb"),
+                video=post.cleaned_data.get("video"))
             new_post.save()
             return HttpResponseRedirect(reverse(
                 "view-board",
@@ -337,6 +346,7 @@ def post(request, post_id):
         if request.is_ajax():
             content = request.PUT['content']
             image = request.FILES.get('img_file')
+            video = request.PUT['video_link']
 
         # Check the content length
         if not content or len(content) > 1000:
@@ -348,6 +358,7 @@ def post(request, post_id):
         # Update the post or comment fields
         post.content = content
         post.thumb = image
+        post.video = video
         post.save()
         return JsonResponse(post.serialize())
 
@@ -412,6 +423,7 @@ def compose_comment(request, post_id):
     if request.is_ajax():
         content = request.POST['content']
         image = request.FILES.get('img_file')
+        video = request.POST['video_link']
 
     # Check the content length
     if not content or len(content) > 1000:
@@ -432,7 +444,8 @@ def compose_comment(request, post_id):
         board=post.board,
         parent=post,
         content=content,
-        thumb=image
+        thumb=image,
+        video=video
     )
     comment.save()
     return JsonResponse(comment.serialize())
