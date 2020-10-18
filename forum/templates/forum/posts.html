@@ -11,7 +11,6 @@
         {% if user_page %}
             <h2 class="profile-name">{{ username }}'s Profile</h2>
             <div class="profile-info-div">
-                <h3>Information</h3>
                 <p class="profile-followers">{{ followers_count_text }}</p>
                 {% if user.is_authenticated and not own_profile %}
                     <form action="{% url 'view-user' username %}" method="post">
@@ -25,6 +24,9 @@
 
         {% if board_page %}
             <h1 class="board-name">{{ board.name }}</h1>
+            {% if board.thumb %}
+                <img class="board-img" src="{{ board.thumb.url }}">
+            {% endif %}
             <p class="board-description">{{ board.description }}</p>
             {% if user.is_authenticated %}
                 <div class="post-div">

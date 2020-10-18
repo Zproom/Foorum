@@ -1,11 +1,11 @@
 @media (min-width: 600px) {
     .post-div, .create-board-div {
         display: block;
-        background-color: white;
+        background-color: rgb(224, 248, 252);
         border: 0.5px solid grey;
         border-radius: 5px;
-        margin-top: 10px;
-        margin-bottom: 10px;
+        margin-top: 20px;
+        margin-bottom: 20px;
         margin-left: auto;
         margin-right: auto;
         padding: 20px;
@@ -16,22 +16,24 @@
 @media (max-width: 599px) {
     .post-div, .create-board-div {
         display: block;
-        background-color: white;
+        background-color: rgb(224, 248, 252);
         border: 0.5px solid grey;
         border-radius: 5px;
-        margin-top: 10px;
-        margin-bottom: 10px;
+        margin-top: 20px;
+        margin-bottom: 20px;
         padding: 20px;
         width: 100%;
     }
 }
 
 body {
-    background-color: rgb(200, 244, 255);
+    background-color: rgb(162, 236, 255);
 }
 
 .index-title {
     text-align: center;
+    margin-top: 15px;
+    font-family: cursive;
 }
 
 .index-board-list {
@@ -81,7 +83,7 @@ body {
 
 .board-name {
     text-align: center;
-    margin-top: 20px;
+    margin-top: 30px;
     margin-bottom: 30px;
     font-size: 50px;
     font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
@@ -188,7 +190,9 @@ i {
 
 .profile-name, .follow-page-title {
     text-align: center;
+    margin-top: 30px;
     font-size: 50px;
+    font-family: monospace;
 }
 
 .profile-info-div {
@@ -221,7 +225,7 @@ i {
 }
 
 .comments-header-text {
-    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-family: 'Courier New', Courier, monospace;
 }
 
 #back-button {
@@ -250,6 +254,8 @@ i {
 .board-description {
     display: block;
     text-align: center;
+    margin-top: 25px;
+    margin-bottom: 25px;
     font-family: 'Courier New', Courier, monospace;
 }
 
@@ -270,4 +276,28 @@ i {
     height: auto;
     max-width: 100%;
     max-height: 400px;
+}
+
+.board-img {
+    display: block;
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 50%;
+    max-height: 400px;
+}
+
+.sign-in-title {
+    display: block;
+    margin-left: 10px;
+    margin-top: 20px;
+    margin-bottom: 15px;
+    text-align: center;
+    font-family: cursive;
+}
+
+#sign-in-button {
+    margin-bottom: 20px;
 }

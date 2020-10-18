@@ -49,8 +49,6 @@ class Post(models.Model):
         blank=True,
         related_name='child_posts')
     content = models.CharField(max_length=1000)
-    
-    # Add field for thumbnail and video
     thumb = models.ImageField(blank=True)
     video = EmbedVideoField(blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -81,9 +79,11 @@ class Post(models.Model):
         return f"{self.author.username} {self.timestamp}"
 
 
-# Create a Board model with a field for the Board's name
+# Create a Board model with a field for the Board's name, 
+# image, and description
 class Board(models.Model):
     name = models.CharField(max_length=1000)
+    thumb = models.ImageField(blank=True)
     description = models.CharField(max_length=8000, blank=True)
 
     # Give the Board model a readable name including its name

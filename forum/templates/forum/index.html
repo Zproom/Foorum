@@ -14,8 +14,8 @@
         {% endfor %}
         {% if has_permission %}
         <div class="create-board-div">
-            <h4>Create New Board</h4>
-            <form action="{% url 'index' %}" method="post">
+            <h4>Create A New Board</h4>
+            <form action="{% url 'index' %}" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 {{ form }}
                 <input type="submit" class="btn btn-primary"/>

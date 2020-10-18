@@ -13,7 +13,6 @@ from django.core.paginator import Paginator
 from django.db.models import Count
 from .models import User, Post, Board
 from django.http import HttpResponseBadRequest
-from django.utils.deprecation import MiddlewareMixin
 
 
 # Defines a form for creating posts. Comments are created 
@@ -27,16 +26,19 @@ class NewPostForm(ModelForm):
                 attrs={
                     'id': 'post-textarea',
                     'placeholder': 'Start typing your thoughts here...'
-                }),
+                }
+            ),
             'thumb': ClearableFileInput(
                 attrs={
                     'id': 'image-upload-button'
-                }),
+                }
+            ),
             'video': Textarea(
                 attrs={
                     'id': 'post-textarea-small',
                     'placeholder': 'Add a link to a YouTube video or SoundCloud song (optional)...'
-                })
+                }
+            )
         }
         labels = {
             'content': '',
@@ -49,21 +51,29 @@ class NewPostForm(ModelForm):
 class NewBoardForm(ModelForm):
     class Meta:
         model = Board
-        fields = ['name', 'description']
+        fields = ['name', 'thumb', 'description']
         widgets = {
             'name': Textarea(
                 attrs={
                     'id': 'post-textarea-small',
                     'placeholder': 'Enter the name of your board.'
-                }),
+                }
+            ),
+            'thumb': ClearableFileInput(
+                attrs={
+                    'id': 'image-upload-button'
+                }
+            ),
             'description': Textarea(
                 attrs={
                     'id': 'post-textarea',
                     'placeholder': 'Enter a description for your board.'
-                })
+                }
+            )
         }
         labels = {
             'name': '',
+            'thumb': 'Attach an Image (Optional)',
             'description': ''
         }
 
@@ -83,13 +93,14 @@ def index(request):
 
     # User creates a board
     if request.method == "POST":
-        board = NewBoardForm(request.POST)
+        board = NewBoardForm(request.POST, request.FILES)
 
         # Error handling
         if board.is_valid():
             new_board = Board(
-                name=board.cleaned_data["name"],
-                description=board.cleaned_data["description"])
+                name=board.cleaned_data.get("name"),
+                thumb=board.cleaned_data.get("thumb"),
+                description=board.cleaned_data.get("description"))
             new_board.save()
             return HttpResponseRedirect(reverse("index"))
         else:
