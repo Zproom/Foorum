@@ -29,11 +29,10 @@ Foorum includes the following models:
 - User
 - Post
 - Board
-- Comment
 
 The **User** model stores information about each user, including the users they follow, their followers, and the posts and comments they have liked. 
 
-The **Post** model stores information about each post on a discussion board. This includes the post's author, the post's associated discussion board, the post's content, an optional image and video, the post's like count, and the post's timestamp.
+The **Post** model stores information about each post on a discussion board. This includes the post's author, the post's associated discussion board, the post's content, an optional image and video, the post's like count, and the post's timestamp. The Post model is used for both top-level posts and comments on posts. 
 
 The **Board** model stores a discussion board's name and description.
 
@@ -62,9 +61,11 @@ The **static** directory contains a JavaScript file and a CSS file.
 - script.js
 - styles.css
 
-**script.js** creates a dynamic user interface for the app. In particular, it lets users create new comments, edit posts and comments, and like posts and comments using the app's API. To create comments and edit comments and top-level posts, the script uses Ajax requests. The app uses JavaScript from Bootstrap and Popper to create a dropdown sort button on each board.  
+**script.js** creates a dynamic user interface for the app. In particular, it lets users create new comments, edit posts and comments, and like posts and comments using the app's API. To create comments and edit comments and top-level posts, the script uses Ajax requests. The app uses JavaScript from Bootstrap and Popper to create a dropdown sort button on each board. Since video embedding in this app relies on template tags, users must reload the page to view updates to embdedded media.
 
 **styles.css** styles the app's templates and helps make the app mobile-responsive. The app uses Bootstrap and Font Awesome for additional styling (e.g. buttons and the like icon).
+
+The remaining static files are the image files in board headers and posts. These are stored in a separate media directory.
 
 
 
