@@ -503,6 +503,7 @@ def register(request):
         # Attempt to create new user
         try:
             user = User.objects.create_user(username, email, password)
+            user.is_active = False
             user.save()
         except IntegrityError:
             return render(request, "forum/register.html", {

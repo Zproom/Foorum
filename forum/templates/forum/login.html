@@ -4,11 +4,13 @@
 
     <h2 class="sign-in-title">Login</h2>
 
-    {% if message %}
-        <div>{{ message }}</div>
-    {% endif %}
-
     <div class="post-div">
+        {% if message %}
+            <div>
+                <strong class="sign-in-message">{{ message }}</strong>
+            </div>
+        {% endif %}
+
         <form action="{% url 'login' %}" method="post">
             {% csrf_token %}
             <div class="form-group">
@@ -21,6 +23,11 @@
         </form>
 
         Don't have an account? <a href="{% url 'register' %}">Register here.</a>
+
+        <p class="registration-info">
+            *If your account is inactive, you will not be able to log in. The site administrator will 
+            activate your account. 
+        </p>
     </div>
 
 {% endblock %}

@@ -301,3 +301,14 @@ i {
 #sign-in-button {
     margin-bottom: 20px;
 }
+
+.sign-in-message {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    color: red;
+}
+
+.registration-info {
+    display: block;
+    margin-top: 15px;
+}

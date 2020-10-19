@@ -26,7 +26,7 @@
                     {% video post.video 'tiny' %}
                 </div>
             {% endif %}
-            <h5 class="post-content">{{ post.content|urlize }}</h5>
+            <p class="post-content">{{ post.content|urlize }}</p>
             <p class="post-timestamp">{{ post.timestamp|date:"N j Y, g:i A" }}</p>
             {% if user.is_authenticated %}
                 <button class="btn" id="like-button">

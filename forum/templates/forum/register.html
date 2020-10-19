@@ -4,11 +4,13 @@
 
     <h2 class="sign-in-title">Register</h2>
 
-    {% if message %}
-        <div>{{ message }}</div>
-    {% endif %}
-
     <div class="post-div">
+        {% if message %}
+            <div>
+                <strong class="sign-in-message">{{ message }}</strong>
+            </div>
+        {% endif %}
+
         <form action="{% url 'register' %}" method="post">
             {% csrf_token %}
             <div class="form-group">
@@ -27,6 +29,12 @@
         </form>
     
         Already have an account? <a href="{% url 'login' %}">Log In here.</a>
+
+        <p class="registration-info">
+            *After you successfully register, your account will be inactive. This means you will be unable
+            to make posts and comments, like content, or follow other users. The site administrator will 
+            activate your account. 
+        </p>
     </div>
 
 {% endblock %}

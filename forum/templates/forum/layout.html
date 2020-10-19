@@ -14,7 +14,7 @@
     
     <body>
         <nav class="navbar navbar-expand-lg navbar-dark bg-info">
-            <a class="navbar-brand" href="#">Foorum</a>
+            <a class="navbar-brand" href="{% url 'index' %}">Foorum</a>
             <div>
                 <ul class="navbar-nav mr-auto">
                     {% if user.is_authenticated %}
