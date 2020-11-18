@@ -26,6 +26,11 @@
     }
 }
 
+.create-board-div {
+    margin-top: 100px;
+    text-align: center;
+}
+
 body {
     background-color: rgb(162, 236, 255);
 }
@@ -33,7 +38,9 @@ body {
 .index-title {
     text-align: center;
     margin-top: 15px;
-    font-family: cursive;
+    margin-bottom: 20px;
+    font-size: 60px;
+    font-family: serif;
 }
 
 .index-board-list {
@@ -200,7 +207,8 @@ i {
 }
 
 .profile-followers, .profile-following {
-    margin-top: 10px;
+    margin-top: 15px;
+    margin-bottom: 15px;
     margin-left: 10px;
     font-family: 'Courier New', Courier, monospace;
 }
@@ -295,7 +303,7 @@ i {
     margin-top: 20px;
     margin-bottom: 15px;
     text-align: center;
-    font-family: cursive;
+    font-family: serif;
 }
 
 #sign-in-button {
