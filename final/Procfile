@@ -1,1 +1,1 @@
-web: gunicorn Foorum.final.wsgi
+web: gunicorn Foorum.wsgi
