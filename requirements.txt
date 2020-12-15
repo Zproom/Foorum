@@ -55,7 +55,6 @@ service-identity==16.0.0
 six==1.14.0
 sqlparse==0.4.1
 ssh-import-id==5.7
-submit50==3.0.2
 systemd-python==234
 termcolor==1.1.0
 Twisted==17.9.0
