@@ -25,7 +25,7 @@ SECRET_KEY = 'nw5qxh(3rt)nxa^u=w68b9j1th65_5o2+e+1i*!#sq5a=9ms*o'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['foorumapp.herokuapp.com']
 
 
 # Application definition
@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'embed_video',
+    'storages',
 ]
 
 MIDDLEWARE = [
@@ -128,3 +129,16 @@ MEDIA_URL = '/media/'
 
 # Folder where Django uploads images 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Added for Amazon S3
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
+
+# If a user uploads a file that has the same name as a file 
+# another user uploaded, we don't want the older file to be 
+# overwritten (instead, append characters to the end of the name)
+AWS_S3_FILE_OVERWRITE = False
+
+AWS_DEFAULT_ACL = None
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
