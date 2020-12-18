@@ -4,6 +4,8 @@
 
 Foorum is a simple web forum that enables users to submit posts on discussion boards with distinct topics. Signed in users are able to create and edit posts on each board and can like and comment on other users' posts. Users also have the ability to follow other users and can view those users' posts in a separate page. If given permission by an administrator, users may create new discussion boards. The app utilizes Django on the back-end to enable users to create new posts and boards, sort posts, and follow and unfollow other users. On the front-end, JavaScript lets users create new comments and edit and like posts and comments via the app's API. To embed media, the app uses the django-embed-video app.
 
+Live Link: https://foorumapp.herokuapp.com/
+
 ## Requirements
 
 - Python 3 (used 3.6.9)
@@ -11,6 +13,7 @@ Foorum is a simple web forum that enables users to submit posts on discussion bo
 - Django ([installation guide](https://docs.djangoproject.com/en/3.0/topics/install/)) 
 - Pillow, for image validation ([site](https://pypi.org/project/Pillow/))
 - django-embed-video, for embedding YouTube and Vimeo videos and music from SoundCloud in posts ([documentation](https://django-embed-video.readthedocs.io/en/latest/))
+- requirements.txt contains a comprehensive list of requirements
 
 ## How to Use
 
