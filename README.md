@@ -2,7 +2,7 @@
 
 ## Overview
 
-Foorum is a simple web forum that enables users to submit posts on discussion boards with distinct topics. Signed in users are able to create and edit posts on each board and can like and comment on other users' posts. Users also have the ability to follow other users and can view those users' posts in a separate page. If given permission by an administrator, users may create new discussion boards. The app utilizes Django on the back-end to enable users to create new posts and boards, sort posts, and follow and unfollow other users. On the front-end, JavaScript lets users create new comments and edit and like posts and comments via the app's API. To embed media, the app uses the django-embed-video app. The app is hosted on Heroku and uses AWS S3 for storing media files. 
+Foorum is a simple web forum that enables users to submit posts on discussion boards with distinct topics. Signed in users are able to create and edit posts on each board and can like and comment on other users' posts. Users also have the ability to follow other users and can view those users' posts in a separate page. If given permission by an administrator, users may create new discussion boards. The app utilizes Django on the back-end to enable users to create new posts and boards, sort posts, and follow and unfollow other users. On the front-end, JavaScript lets users create new comments and edit and like posts and comments via the app's API. To embed media, the app uses the django-embed-video app. The app is hosted on Heroku and uses a PostgreSQL database provided by Heroku. The live website uses AWS S3 for storing media files. 
 
 Live Link: https://foorumapp.herokuapp.com/
 
