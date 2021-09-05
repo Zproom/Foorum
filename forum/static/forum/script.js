@@ -405,25 +405,20 @@ function like_item(item) {
     // already liked the post or comment
     .then(user => {
         user.likes.forEach(function(liked_post) {
-            if (liked_post.id === item_id) {
+            if (liked_post.id == item_id) {
                 already_liked = true;
             }
         }); 
-    })
 
-    // Error handling
-    .catch(error => {
-        console.log('Error:', error);
-    });
-
-    // Send a PUT request to the viewer's route
-    fetch(user_api_route, {
-        headers: {
-            'X-CSRFToken': csrftoken
-        },
-        method: 'PUT',
-        body: JSON.stringify({
-            post_id: item_id
+        // Send a PUT request to the viewer's route
+        return fetch(user_api_route, {
+            headers: {
+                'X-CSRFToken': csrftoken
+            },
+            method: 'PUT',
+            body: JSON.stringify({
+                post_id: item_id
+            })
         })
     })
     .then(() => {
