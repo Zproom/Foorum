@@ -8,7 +8,7 @@ Live Link: https://foorumapp.herokuapp.com/
 
 ## Requirements
 
-- Python 3 (used 3.6.9)
+- Python 3 
 - pip
 - Django ([installation guide](https://docs.djangoproject.com/en/3.0/topics/install/)) 
 - Pillow, for image validation ([site](https://pypi.org/project/Pillow/))
