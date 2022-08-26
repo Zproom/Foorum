@@ -13,7 +13,7 @@ Live Link: https://foorumapp.herokuapp.com/
 - Django ([installation guide](https://docs.djangoproject.com/en/3.0/topics/install/)) 
 - Pillow, for image validation ([site](https://pypi.org/project/Pillow/))
 - django-embed-video, for embedding YouTube and Vimeo videos and music from SoundCloud in posts ([documentation](https://django-embed-video.readthedocs.io/en/latest/))
-- requirements.txt contains a comprehensive list of requirements
+- requirements.txt contains a comprehensive list of requirements (may contain extra packages)
 
 ## How to Use
 
