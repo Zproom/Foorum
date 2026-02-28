@@ -47,8 +47,6 @@ The **Post** model stores information about each post on a discussion board. Thi
 
 The **Board** model stores a discussion board's name and description.
 
-The **Comment** model stores information about a comment on a post. In particular, it stores a comment's author, associated post, content, like count, and timestamp. This model also stores an optional image. 
-
 ## Templates
 
 Foorum is a multipage application that comprises six HTML files, listed below.
@@ -78,5 +76,11 @@ The **static** directory contains a JavaScript file and a CSS file.
 
 The remaining static files are the image files in board headers and posts. These are stored in a separate media directory.
 
+## Future Work
 
+Potential extensions of the project include:
 
+- Add the ability to reset forgotten passwords 
+- Improve the styling and overall look of the app
+- Deploy the app to a hosted environment
+- Add more tests to ensure the app is working properly
