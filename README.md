@@ -37,7 +37,11 @@ To use the admin app, go to the URL http://127.0.0.1:8000/admin/ and sign in wit
 
 You can also create regular users by signing out and clicking the Register link at the top of the page. The admin user will need to activate regular user accounts in the admin app before they can log in and post. In the admin app, click "Users", then click on the appropriate user in the list. Ensure the box labelled "Active" is checked.
 
-To give regular users the ability to create new boards as an admin, go to the admin app and click "Users". Click on the appropriate user in the list and next to "User permissions" control click "forum|board|Can add board". 
+To give regular users the ability to create new boards as an admin, go to the admin app and click "Users". Click on the appropriate user in the list and next to "User permissions" control click "forum|board|Can add board".
+
+Below is a screenshot of the admin interface.
+
+![Admin Interface](image.png)
 
 ## Technologies Used
 
@@ -71,10 +75,23 @@ Foorum is a multipage application that comprises six HTML files, listed below.
 
 **index.html** is the page all users land on when opening Foorum. It lists all of the existing discussion boards as links. Users who have been granted permission by an administrator also see a form for creating new discussion boards below the list of boards.
 
+The page should look something like this:
+
+![Foorum Home Page](homepage.png)
+
 **posts.html** is a page that is used to present listed posts. In particular, this page is displayed when: (1) any user clicks on a link to a discussion board; (2) any user clicks on a username in a post or comment; or (3) a signed in user clicks the "Following" link at the top of the screen (users who are not signed in cannot see the link to this page). The content of the page changes depending on which of the three links is opened. In a discussion board (1), users can see the name and description of the board and a sortable list of posts associated with the board. Signed in users also see a form to create new posts. A profile page (2) shows the user's follower count, following count (number of users they follow), and all of the user's posts in reverse chronological order. Signed in users also have the ability to follow and unfollow the user. The following page (3) displays all posts authored by users followed by the signed in user.
 
-**comments.html** is the page all users see after clicking on the Comments button under a post. The page displays the original post and all of the comments associated with the post in reverse chronological order. Signed in users also see a form to create new comments. 
- 
+Below is an example of a discussion board with one post.
+
+![Discussion Board 1](board1.png)
+![Discussion Board 2](board2.png)
+
+**comments.html** is the page all users see after clicking on the Comments button under a post. The page displays the original post and all of the comments associated with the post in reverse chronological order. Signed in users also see a form to create new comments.
+
+Here's an example of the comments under a post in a music board:
+
+![Comment](comment.png)
+
 ## Static Files
 
 The **static** directory contains a JavaScript file and a CSS file.
