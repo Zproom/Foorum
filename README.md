@@ -41,7 +41,7 @@ To give regular users the ability to create new boards as an admin, go to the ad
 
 Below is a screenshot of the admin interface.
 
-![Admin Interface](image.png)
+![Admin Interface](admin.png)
 
 ## Technologies Used
 
