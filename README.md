@@ -28,7 +28,12 @@ The app will be available at: http://localhost:8000.
 
 You will notice that there are no boards and no other users.
 
-Create one or more superusers who can create, edit, and delete any of the models in Foorum by running `docker exec -it <container-name-or-id> python3 manage.py createsuperuser` (you can check the container ID with `docker ps --all`). To use the admin app, go to the URL http://127.0.0.1:8000/admin/ and sign in with your superuser's credentials. The admin app offers a quick way to populate Foorum with content. While signed in as the superuser, create boards by submitting forms on the All Boards page.
+Create one or more superusers who can create, edit, and delete any of the models in Foorum by running:
+
+1. If the container is not running: `docker start <container-name-or-id>` (you can check the container information by running `docker ps --all`) 
+2. `docker exec -it <container-name-or-id> python3 manage.py createsuperuser`
+
+To use the admin app, go to the URL http://127.0.0.1:8000/admin/ and sign in with your superuser's credentials. The admin app offers a quick way to populate Foorum with content. While signed in as the superuser, create boards by submitting forms on the All Boards page.
 
 You can also create regular users by signing out and clicking the Register link at the top of the page. The admin user will need to activate regular user accounts in the admin app before they can log in and post. In the admin app, click "Users", then click on the appropriate user in the list. Ensure the box labelled "Active" is checked.
 
