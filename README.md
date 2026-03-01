@@ -2,27 +2,44 @@
 
 ## Overview
 
-Foorum is a simple web forum that enables users to submit posts on discussion boards with distinct topics. Signed in users are able to create and edit posts on each board and can like and comment on other users' posts. Users also have the ability to follow other users and can view those users' posts in a separate page. If given permission by an administrator, users may create new discussion boards. The app utilizes Python (Django framework) on the back-end to enable users to create new posts and boards, sort posts, and follow and unfollow other users. On the front-end, JavaScript lets users create new comments and edit and like posts and comments via the app's API. To embed media, the app uses the django-embed-video app. The app is hosted on Heroku and uses a PostgreSQL database provided by Heroku. The live website uses AWS S3 for storing media files.
+Foorum is a simple web forum that enables users to submit posts on discussion boards with distinct topics. Signed in users are able to create and edit posts on each board and can like and comment on other users' posts. Users also have the ability to follow other users and can view those users' posts in a separate page. If given permission by an administrator, users may create new discussion boards. The app utilizes Python (Django framework) on the back-end to enable users to create new posts and boards, sort posts, and follow and unfollow other users. On the front-end, JavaScript lets users create new comments and edit and like posts and comments via the app's API. To embed media, the app uses the django-embed-video app. The app runs locally in a Docker container.
 
-## Requirements
+## How to run the app
 
-- Python 3 
-- pip
-- Django ([installation guide](https://docs.djangoproject.com/en/3.0/topics/install/)) 
-- Pillow, for image validation ([site](https://pypi.org/project/Pillow/))
-- django-embed-video, for embedding YouTube and Vimeo videos and music from SoundCloud in posts ([documentation](https://django-embed-video.readthedocs.io/en/latest/))
-- requirements.txt contains a comprehensive list of requirements (may contain extra packages)
+The app is packaged as a Docker container so it can be run locally. Docker is the only prerequisite.
 
-## How to Use
+From the root folder of the repository, run the following commands:
 
-To start using the app, complete the following steps:
+```
+docker build -t foorum .
+```
 
-1. `cd` into the `Foorum` directory.
-2. Run `python3 manage.py makemigrations` to make migrations for the project apps.
-3. Run `python3 manage.py migrate` to apply migrations to your database.
-4. Run `python3 manage.py runserver` to launch the app. You will notice that there are no boards and no other users. Create boards by submitting forms on the All Boards page or...
-5. Create one or more superusers who can create, edit, and delete any of the models in Foorum by running `python3 manage.py createsuperuser`. To use the admin app, go to the URL "http://127.0.0.1:8000/admin/" and sign in with your superuser's credentials. The admin app offers a quick way to populate Foorum with content. You can also create regular users by signing out and clicking the Register link at the top of the page. 
-6. To give regular users the ability to create new boards as an admin, go to the admin app and click "Users". Click on the appropriate user in the list and next to "User permissions" control click "forum|board|Can add board". 
+Once the image is built, start the container with:
+
+```
+docker run -p 8000:8000 foorum
+```
+
+In addition to installing all the project dependencies, the Dockerfile creates the app database schema based on the code in `forum/models.py`.
+
+The app will be available at: http://localhost:8000.
+
+### Adding content to the site
+
+You will notice that there are no boards and no other users.
+
+Create one or more superusers who can create, edit, and delete any of the models in Foorum by running `docker exec -it <container-name-or-id> python3 manage.py createsuperuser` (you can check the container ID with `docker ps --all`). To use the admin app, go to the URL http://127.0.0.1:8000/admin/ and sign in with your superuser's credentials. The admin app offers a quick way to populate Foorum with content. While signed in as the superuser, create boards by submitting forms on the All Boards page.
+
+You can also create regular users by signing out and clicking the Register link at the top of the page. The admin user will need to activate regular user accounts in the admin app before they can log in and post. In the admin app, click "Users", then click on the appropriate user in the list. Ensure the box labelled "Active" is checked.
+
+To give regular users the ability to create new boards as an admin, go to the admin app and click "Users". Click on the appropriate user in the list and next to "User permissions" control click "forum|board|Can add board". 
+
+## Technologies Used
+
+- Backend: Python, Django
+- Frontend: HTML/CSS, Bootstrap, vanilla JavaScript
+- Database: SQLite for development (can be switched to PostgreSQL)
+- Deployment/Dev: Docker, Gunicorn (production), Django development server
 
 ## Models
 
@@ -36,8 +53,6 @@ The **User** model stores information about each user, including the users they 
 The **Post** model stores information about each post on a discussion board. This includes the post's author, the post's associated discussion board, the post's content, an optional image and video, the post's like count, and the post's timestamp. The Post model is used for both top-level posts and comments on posts. 
 
 The **Board** model stores a discussion board's name and description.
-
-The **Comment** model stores information about a comment on a post. In particular, it stores a comment's author, associated post, content, like count, and timestamp. This model also stores an optional image. 
 
 ## Templates
 
@@ -68,5 +83,11 @@ The **static** directory contains a JavaScript file and a CSS file.
 
 The remaining static files are the image files in board headers and posts. These are stored in a separate media directory.
 
+## Future Work
 
+Potential extensions of the project include:
 
+- Add the ability to reset forgotten passwords 
+- Improve the styling and overall look of the app
+- Deploy the app to a hosted environment
+- Add more tests to ensure the app is working properly
