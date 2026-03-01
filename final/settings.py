@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
-import django_heroku
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -21,14 +20,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = 'nw5qxh(3rt)nxa^u=w68b9j1th65_5o2+e+1i*!#sq5a=9ms*o'
-SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = 'nw5qxh(3rt)nxa^u=w68b9j1th65_5o2+e+1i*!#sq5a=9ms*o'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG is False if the DEBUG_VALUE environment variable is not True
-DEBUG = (os.environ.get('DEBUG_VALUE') == 'True')
+DEBUG = True
 
-ALLOWED_HOSTS = ['foorumapp.herokuapp.com']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -145,5 +142,3 @@ AWS_S3_FILE_OVERWRITE = False
 
 AWS_DEFAULT_ACL = None
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-
-django_heroku.settings(locals())

@@ -354,10 +354,9 @@ def post(request, post_id):
             request._load_post_and_files()
             request.META['REQUEST_METHOD'] = 'PUT'
         request.PUT = request.POST
-        if request.is_ajax():
-            content = request.PUT['content']
-            image = request.FILES.get('img_file')
-            video = request.PUT['video_link']
+        content = request.PUT.get('content', '')
+        image = request.FILES.get('img_file')
+        video = request.PUT.get('video_link', '')
 
         # Check the content length
         if not content or len(content) > 1000:
@@ -431,10 +430,9 @@ def compose_comment(request, post_id):
     # Composing a new comment must be via POST
     if request.method != "POST":
         return JsonResponse({"error": "POST request required."}, status=400)
-    if request.is_ajax():
-        content = request.POST['content']
-        image = request.FILES.get('img_file')
-        video = request.POST['video_link']
+    content = request.POST.get('content', '')
+    image = request.FILES.get('img_file')
+    video = request.POST.get('video_link', '')
 
     # Check the content length
     if not content or len(content) > 1000:
