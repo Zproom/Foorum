@@ -31,10 +31,10 @@ The app will be available at: http://localhost:8000.
 
 ## Technologies Used
 
-- **Backend:** Python, Django
-- **Frontend:** HTML/CSS, Bootstrap, vanilla JavaScript
-- **Database:** SQLite for development (can be switched to PostgreSQL)
-- **Deployment/Dev:** Docker, Gunicorn (production), Django development server
+- Backend: Python, Django
+- Frontend: HTML/CSS, Bootstrap, vanilla JavaScript
+- Database: SQLite for development (can be switched to PostgreSQL)
+- Deployment/Dev: Docker, Gunicorn (production), Django development server
 
 ## Models
 
