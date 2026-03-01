@@ -22,15 +22,9 @@ RUN apt update && \
 COPY . .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Run migrations and optionally create a superuser (can fail).
-ARG DJANGO_SUPERUSER_USERNAME=admin
-ARG DJANGO_SUPERUSER_EMAIL=admin@example.com
-ARG DJANGO_SUPERUSER_PASSWORD=admin
+# Run migrations to set up app database schema.
 RUN python3 manage.py makemigrations
 RUN python3 manage.py migrate
-RUN python3 manage.py createsuperuser --noinput \
-    --username "$DJANGO_SUPERUSER_USERNAME" \
-    --email "$DJANGO_SUPERUSER_EMAIL" || true
 
 # Django runs on port 8000 by default.
 EXPOSE 8000
