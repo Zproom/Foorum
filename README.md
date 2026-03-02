@@ -22,7 +22,7 @@ docker run -p 8000:8000 foorum
 
 In addition to installing all the project dependencies, the Dockerfile creates the app database schema based on the code in `forum/models.py`.
 
-The app will be available at: http://localhost:8000.
+The app will be available at: http://127.0.0.1:8000.
 
 ### Adding content to the site
 
